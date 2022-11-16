@@ -24,6 +24,7 @@ class main_panel(bpy.types.Panel):
 
     def draw(self, context): # Create 3D View panel
         layout = self.layout
+        settings = context.scene.compositor_pro_props
 
         panel = layout.row()
         if not context.space_data.tree_type == 'CompositorNodeTree':
@@ -31,17 +32,29 @@ class main_panel(bpy.types.Panel):
         if not context.scene.use_nodes:
             panel.label(text="Please enable nodes.")
         else:
-            panel.label(text="Test Successful")
+            panel.prop(settings, 'categories')
+            
+
+class compositor_pro_props(bpy.types.PropertyGroup):
+    categories: bpy.props.EnumProperty(
+        name='Category',
+        items=(
+            ('name', 'DisplayName', 'name'),
+        ),
+        default='name'
+    )
 
 classes = [ main_panel ]
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    bpy.types.Scene.compositor_pro_props = bpy.props.PointerProperty(type=compositor_pro_props)
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    del bpy.types.Scene.compositor_pro_props
 
 if __name__ == "__main__":
     register()
