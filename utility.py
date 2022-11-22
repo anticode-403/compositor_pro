@@ -22,7 +22,7 @@ def previews_from_directory_items(prev_col):
     if directory and os.path.exists(directory):
         image_paths = []
         for fn in os.listdir(directory):
-            if fn.lower().endswith(".jpg"):
+            if fn.lower().endswith(".png"):
                 image_paths.append(fn)
         
         for i, name in enumerate(image_paths):
@@ -32,7 +32,7 @@ def previews_from_directory_items(prev_col):
                 thumb = prev_col.load(name, filepath, 'IMAGE')
             else:
                 thumb = prev_col[name]
-            enum_items.append((name.split('.jpg')[0], name.split('.jpg')[0], "", thumb.icon_id, i))
+            enum_items.append((name.split('.png')[0], name.split('.png')[0], "", thumb.icon_id, i))
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
