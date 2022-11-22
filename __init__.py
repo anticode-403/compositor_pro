@@ -7,6 +7,7 @@ bl_info = {
 }
 
 import bpy
+from . utility import previews_from_directory_items, preview_collections
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -32,10 +33,16 @@ class main_panel(bpy.types.Panel):
         if not context.scene.use_nodes:
             panel.label(text="Please enable nodes.")
         else:
+            panel = panel.column()
             panel.prop(settings, 'categories')
+            panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
+            panel.operator('comp_pro.add_nodes', text="Add").choice = settings.categories
             
 
 class compositor_pro_props(bpy.types.PropertyGroup):
+    def import_name(self, context):
+        bpy.ops.comp_pro.add_nodes('INVOKE_DEFAULT', choice='name')
+
     categories: bpy.props.EnumProperty(
         name='Category',
         items=(
@@ -43,8 +50,38 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         ),
         default='name'
     )
+    comp_name: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['name']),
+        update=import_name
+    )
 
-classes = [ main_panel ]
+class compositor_pro_add_nodes(bpy.types.Operator):
+    bl_idname = 'comp_pro.add_nodes'
+    bl_description = 'Add Compositor Node'
+    bl_category = 'Node'
+    bl_label = 'Add Node'
+
+    choice: bpy.props.StringProperty()
+
+    def invoke(self, context, event):
+        ...
+
+# def previews_from_directory_items(pcoll):
+#     enum_items = []
+
+#     if bpy.context is None:
+#         return enum_items
+    
+#     directory = pcoll.my_previews_dir
+
+#     if directory and os.path.exists(directory):
+#         image_paths = []
+#         for fn in os.listdir(directory):
+#             if fn.lower().endswith(".jpg"):
+#                 image_paths.append(fn)
+        
+
+classes = [ compositor_pro_add_nodes, main_panel, compositor_pro_props ]
 
 def register():
     for cls in classes:
