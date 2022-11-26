@@ -6,6 +6,10 @@ preview_collections = {}
 preview_dir = join(dirname(realpath(__file__)),'thumbnails')
 name_dir = join(preview_dir,'name')
 
+blender_dir = join(dirname(realpath(__file__)),'data')
+blender_file = join(blender_dir,'Compositor_Pro')
+file_path_node_tree = join(blender_file,'NodeTree')
+
 prev_col = bpy.utils.previews.new()
 prev_col.my_previews_dir = name_dir
 prev_col.my_previews = ()
@@ -36,3 +40,6 @@ def previews_from_directory_items(prev_col):
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
+
+def import_node_group(group_name):
+    ...

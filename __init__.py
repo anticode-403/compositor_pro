@@ -7,7 +7,7 @@ bl_info = {
 }
 
 import bpy
-from . utility import previews_from_directory_items, preview_collections
+from . utility import previews_from_directory_items, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -64,7 +64,15 @@ class compositor_pro_add_nodes(bpy.types.Operator):
     choice: bpy.props.StringProperty()
 
     def invoke(self, context, event):
-        ...
+        group_name = eval('bpy.context.scene.compositor_pro_props.comp_{}'.format(self.choice))
+        node_tree = context.scene.node_tree
+        nodes = node_tree.nodes
+        if not bpy.data.node_groups.get(group_name):
+            bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+        new_group = nodes.new(type='ShaderNodeGroup')
+        new_group.node_tree = bpy.data.node_groups.get(group_name)
+        # new_group.position = context.scene.camera.position
+        return {'FINISHED'}
 
 # def previews_from_directory_items(pcoll):
 #     enum_items = []
