@@ -3,10 +3,11 @@ import os
 from os.path import join, dirname, realpath
 
 preview_collections = {}
-preview_dir = join(dirname(realpath(__file__)),'thumbnails')
+main_dir = dirname(realpath(__file__))
+preview_dir = join(main_dir,'thumbnails')
 name_dir = join(preview_dir,'name')
 
-blender_dir = join(dirname(realpath(__file__)),'data')
+blender_dir = join(main_dir,'data')
 blender_file = join(blender_dir,'Compositor_Pro')
 file_path_node_tree = join(blender_file,'NodeTree')
 
