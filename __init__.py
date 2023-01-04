@@ -79,6 +79,7 @@ class compositor_pro_add_node(bpy.types.Operator):
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
         # new_group.position = context.scene.camera.position
+        nodes.active = new_group
         return {'FINISHED'}
 
 # def previews_from_directory_items(pcoll):
