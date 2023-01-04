@@ -2,12 +2,12 @@ bl_info = {
     "name" : "Compositor Pro",
     "author" : "anticode-403, Nihal Rahman",
     "blender" : (3, 3, 0),
-    "version" : (0, 0, 2),
+    "version" : (0, 0, 3),
     "category" : "Compositing"
 }
 
 import bpy
-from . utility import previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -37,6 +37,7 @@ class main_panel(bpy.types.Panel):
             panel.prop(settings, 'categories')
             panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
             panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
+            #panel.operator('comp_pro.create_default', text="Create Default Setup")
             
 
 class compositor_pro_props(bpy.types.PropertyGroup):
@@ -72,6 +73,8 @@ class compositor_pro_add_node(bpy.types.Operator):
 
     def invoke(self, context, event):
         group_name = eval('bpy.context.scene.compositor_pro_props.comp_{}'.format(self.choice))
+        if group_name == 'Sharpen' and has_color_management(context):
+            group_name = 'Sharpen+'
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         if not bpy.data.node_groups.get(group_name):

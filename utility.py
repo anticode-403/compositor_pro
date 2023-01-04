@@ -22,18 +22,6 @@ prev_col.my_previews_dir = utilities_dir
 prev_col.my_previews = ()
 preview_collections['utilities'] = prev_col
 
-color_management_plus = [
-    'Camera Log',
-    'Log',
-    'RED IPP2',
-    'ACES Display',
-    'TCAMv2 Display',
-    'AgX ( Filmic 2.0 ) Display',
-    'Filmic Display'
-]
-
-has_color_management_cache = None
-
 def previews_from_directory_items(prev_col):
     enum_items = []
 
@@ -61,11 +49,17 @@ def previews_from_directory_items(prev_col):
     return prev_col.my_previews
 
 def has_color_management (context):
-    if has_color_management_cache != None:
-        return has_color_management_cache
+    color_management_plus = [
+        'Camera Log',
+        'Log',
+        'RED IPP2',
+        'ACES Display',
+        'TCAMv2 Display',
+        'AgX ( Filmic 2.0 ) Display',
+        'Filmic Display'
+    ]
     display_device = context.scene.display_settings.display_device
     if display_device in color_management_plus:
-        has_color_management_cache = True
+        return True
     else:
-        has_color_management_cache = False
-    return has_color_management_cache
+        return False
