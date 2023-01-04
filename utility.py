@@ -5,16 +5,22 @@ from os.path import join, dirname, realpath
 preview_collections = {}
 main_dir = dirname(realpath(__file__))
 preview_dir = join(main_dir,'thumbnails')
-name_dir = join(preview_dir,'name')
+effects_dir = join(preview_dir,'effects')
+utilities_dir = join(preview_dir,'utilities')
 
 blender_dir = join(main_dir,'data')
-blender_file = join(blender_dir,'Compositor_Pro')
+blender_file = join(blender_dir,'Compositor_Pro.blend')
 file_path_node_tree = join(blender_file,'NodeTree')
 
 prev_col = bpy.utils.previews.new()
-prev_col.my_previews_dir = name_dir
+prev_col.my_previews_dir = effects_dir
 prev_col.my_previews = ()
-preview_collections['name'] = prev_col
+preview_collections['effects'] = prev_col
+
+prev_col = bpy.utils.previews.new()
+prev_col.my_previews_dir = effects_dir
+prev_col.my_previews = ()
+preview_collections['utilities'] = prev_col
 
 def previews_from_directory_items(prev_col):
     enum_items = []

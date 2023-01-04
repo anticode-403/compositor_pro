@@ -2,7 +2,7 @@ bl_info = {
     "name" : "Compositor Pro",
     "author" : "anticode-403, Nihal Rahman",
     "blender" : (3, 3, 0),
-    "version" : (0, 0, 1),
+    "version" : (0, 0, 2),
     "category" : "Compositing"
 }
 
@@ -36,27 +36,34 @@ class main_panel(bpy.types.Panel):
             panel = panel.column()
             panel.prop(settings, 'categories')
             panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
-            panel.operator('comp_pro.add_nodes', text="Add").choice = settings.categories
+            panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
             
 
 class compositor_pro_props(bpy.types.PropertyGroup):
-    def import_name(self, context):
-        bpy.ops.comp_pro.add_nodes('INVOKE_DEFAULT', choice='name')
+    def import_effects(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
+    def import_utilities(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
 
     categories: bpy.props.EnumProperty(
         name='Category',
         items=(
-            ('name', 'DisplayName', 'name'),
+            ('effects', 'Effects', 'effects'),
+            ('utilities', 'Utilities', 'utilities'),
         ),
-        default='name'
+        default='effects'
     )
-    comp_name: bpy.props.EnumProperty(
-        items=previews_from_directory_items(preview_collections['name']),
-        update=import_name
+    comp_utilities: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['utilities']),
+        update=import_utilities
+    )
+    comp_effects: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['effects']),
+        update=import_effects
     )
 
-class compositor_pro_add_nodes(bpy.types.Operator):
-    bl_idname = 'comp_pro.add_nodes'
+class compositor_pro_add_node(bpy.types.Operator):
+    bl_idname = 'comp_pro.add_node'
     bl_description = 'Add Compositor Node'
     bl_category = 'Node'
     bl_label = 'Add Node'
@@ -89,7 +96,7 @@ class compositor_pro_add_nodes(bpy.types.Operator):
 #                 image_paths.append(fn)
         
 
-classes = [ compositor_pro_add_nodes, main_panel, compositor_pro_props ]
+classes = [ compositor_pro_add_node, main_panel, compositor_pro_props ]
 
 def register():
     for cls in classes:
