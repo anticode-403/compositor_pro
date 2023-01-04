@@ -18,7 +18,7 @@ prev_col.my_previews = ()
 preview_collections['effects'] = prev_col
 
 prev_col = bpy.utils.previews.new()
-prev_col.my_previews_dir = effects_dir
+prev_col.my_previews_dir = utilities_dir
 prev_col.my_previews = ()
 preview_collections['utilities'] = prev_col
 
