@@ -69,7 +69,7 @@ class compositor_pro_add_nodes(bpy.types.Operator):
         nodes = node_tree.nodes
         if not bpy.data.node_groups.get(group_name):
             bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
-        new_group = nodes.new(type='ShaderNodeGroup')
+        new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
         # new_group.position = context.scene.camera.position
         return {'FINISHED'}
