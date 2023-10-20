@@ -83,7 +83,7 @@ class compositor_pro_add_node(bpy.types.Operator):
             bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
-        new_group.position = context.space_data.cursor_location
+        new_group.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == new_group
         return {'FINISHED'}
