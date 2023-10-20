@@ -90,6 +90,7 @@ class compositor_pro_add_node(bpy.types.Operator):
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
+        new_group.node_tree.use_fake_user = False
         #attatch to cursor
         new_group.location = context.space_data.cursor_location
         for n in nodes:
