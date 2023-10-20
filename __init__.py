@@ -101,7 +101,10 @@ class compositor_pro_enable_optimizations(bpy.types.Operator):
         compositor = context.scene.node_tree
         compositor.use_groupnode_buffer = True
         compositor.use_two_pass = True
-        # compositor.use_opencl = True
+        if bpy.app.version > (4, 0, 0):
+            compositor.use_opencl = True
+        else:
+            compositor.use_opencl = False
         return {'FINISHED'}
 
 
