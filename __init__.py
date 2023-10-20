@@ -33,7 +33,10 @@ class main_panel(bpy.types.Panel):
         if not context.scene.use_nodes:
             panel.label(text="Please enable nodes.")
         else:
+            compositor = context.scene.node_tree
             panel = panel.column()
+            if not compositor.use_groupnode_buffer or not compositor.use_two_pass:
+                panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             panel.prop(settings, 'categories')
             panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
             panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
@@ -88,8 +91,21 @@ class compositor_pro_add_node(bpy.types.Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
+class compositor_pro_enable_optimizations(bpy.types.Operator):
+    bl_idname = 'comp_pro.enable_optimizations'
+    bl_description = 'Enable Blender compositor optimizations'
+    bl_category = 'Node'
+    bl_label = 'Enable Optimizations'
 
-classes = [ compositor_pro_add_node, main_panel, compositor_pro_props ]
+    def invoke(self, context, event):
+        compositor = context.scene.node_tree
+        compositor.use_groupnode_buffer = True
+        compositor.use_two_pass = True
+        # compositor.use_opencl = True
+        return {'FINISHED'}
+
+
+classes = [ compositor_pro_enable_optimizations, compositor_pro_add_node, main_panel, compositor_pro_props ]
 
 def register():
     for cls in classes:
