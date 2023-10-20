@@ -7,7 +7,7 @@ bl_info = {
 }
 
 import bpy
-from . utility import previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -91,6 +91,8 @@ class compositor_pro_add_node(bpy.types.Operator):
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
         new_group.node_tree.use_fake_user = False
+        #fix nodes
+        recursive_node_fixer(new_group, context)
         #attatch to cursor
         new_group.location = context.space_data.cursor_location
         for n in nodes:
