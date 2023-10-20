@@ -60,15 +60,15 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     )
     comp_utilities: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['utilities']),
-        update=import_utilities
+        # update=import_utilities
     )
     comp_effects: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['effects']),
-        update=import_effects
+        # update=import_effects
     )
     comp_batches: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['batches']),
-        update=import_batches
+        # update=import_batches
     )
 
 class compositor_pro_add_node(bpy.types.Operator):
