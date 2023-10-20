@@ -39,19 +39,22 @@ class main_panel(bpy.types.Panel):
             panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
             #panel.operator('comp_pro.create_default', text="Create Default Setup")
             #panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
-            
+
 
 class compositor_pro_props(bpy.types.PropertyGroup):
     def import_effects(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
     def import_utilities(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
+    def import_batches(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
 
     categories: bpy.props.EnumProperty(
         name='Category',
         items=(
             ('effects', 'Effects', 'effects'),
             ('utilities', 'Utilities', 'utilities'),
+            ('batches', 'Batches', 'batches'),
         ),
         default='effects'
     )
@@ -62,6 +65,10 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     comp_effects: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['effects']),
         update=import_effects
+    )
+    comp_batches: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['batches']),
+        update=import_batches
     )
 
 class compositor_pro_add_node(bpy.types.Operator):
@@ -91,7 +98,7 @@ class compositor_pro_add_node(bpy.types.Operator):
 
 #     if bpy.context is None:
 #         return enum_items
-    
+
 #     directory = pcoll.my_previews_dir
 
 #     if directory and os.path.exists(directory):
@@ -99,7 +106,7 @@ class compositor_pro_add_node(bpy.types.Operator):
 #         for fn in os.listdir(directory):
 #             if fn.lower().endswith(".jpg"):
 #                 image_paths.append(fn)
-        
+
 
 classes = [ compositor_pro_add_node, main_panel, compositor_pro_props ]
 
