@@ -74,8 +74,8 @@ class compositor_pro_add_node(bpy.types.Operator):
 
     def invoke(self, context, event):
         group_name = eval('bpy.context.scene.compositor_pro_props.comp_{}'.format(self.choice))
-        if group_name == 'Sharpen' and has_color_management(context):
-            group_name = 'Sharpen+'
+        # if group_name == 'Sharpen' and has_color_management(context):
+        #     group_name = 'Sharpen+'
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         if not bpy.data.node_groups.get(group_name):
