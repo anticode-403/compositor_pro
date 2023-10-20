@@ -37,7 +37,6 @@ class main_panel(bpy.types.Panel):
             panel.prop(settings, 'categories')
             panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
             panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
-            #panel.operator('comp_pro.create_default', text="Create Default Setup")
             #panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
 
 
@@ -60,15 +59,12 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     )
     comp_utilities: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['utilities']),
-        # update=import_utilities
     )
     comp_effects: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['effects']),
-        # update=import_effects
     )
     comp_batches: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['batches']),
-        # update=import_batches
     )
 
 class compositor_pro_add_node(bpy.types.Operator):
@@ -81,8 +77,6 @@ class compositor_pro_add_node(bpy.types.Operator):
 
     def invoke(self, context, event):
         group_name = eval('bpy.context.scene.compositor_pro_props.comp_{}'.format(self.choice))
-        # if group_name == 'Sharpen' and has_color_management(context):
-        #     group_name = 'Sharpen+'
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         if not bpy.data.node_groups.get(group_name):
@@ -93,20 +87,6 @@ class compositor_pro_add_node(bpy.types.Operator):
         for n in nodes:
             n.select = n == new_group
         return {'FINISHED'}
-
-# def previews_from_directory_items(pcoll):
-#     enum_items = []
-
-#     if bpy.context is None:
-#         return enum_items
-
-#     directory = pcoll.my_previews_dir
-
-#     if directory and os.path.exists(directory):
-#         image_paths = []
-#         for fn in os.listdir(directory):
-#             if fn.lower().endswith(".jpg"):
-#                 image_paths.append(fn)
 
 
 classes = [ compositor_pro_add_node, main_panel, compositor_pro_props ]
