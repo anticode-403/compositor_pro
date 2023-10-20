@@ -35,6 +35,8 @@ class main_panel(bpy.types.Panel):
         else:
             compositor = context.scene.node_tree
             panel = panel.column()
+            if bpy.app.version < (4, 0, 0) and context.scene.display_settings.display_device in ['sRGB', 'XYZ', 'None']:
+                panel.label(text="Please update Blender to 4.0 or install Color Management+6")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             panel.prop(settings, 'categories')
@@ -78,13 +80,17 @@ class compositor_pro_add_node(bpy.types.Operator):
     choice: bpy.props.StringProperty()
 
     def invoke(self, context, event):
+        #find node
         group_name = eval('bpy.context.scene.compositor_pro_props.comp_{}'.format(self.choice))
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
+        #append
         if not bpy.data.node_groups.get(group_name):
             bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+        #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
+        #attatch to cursor
         new_group.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == new_group
