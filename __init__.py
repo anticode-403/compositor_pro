@@ -42,8 +42,8 @@ class main_panel(bpy.types.Panel):
 class compositor_pro_props(bpy.types.PropertyGroup):
     def import_effects(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
-    def import_utilities(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
+    # def import_utilities(self, context):
+    #     bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def import_batches(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
 
@@ -51,14 +51,14 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         name='Category',
         items=(
             ('effects', 'Effects', 'effects'),
-            ('utilities', 'Utilities', 'utilities'),
+            # ('utilities', 'Utilities', 'utilities'),
             ('batches', 'Batches', 'batches'),
         ),
         default='effects'
     )
-    comp_utilities: bpy.props.EnumProperty(
-        items=previews_from_directory_items(preview_collections['utilities']),
-    )
+    # comp_utilities: bpy.props.EnumProperty(
+    #     items=previews_from_directory_items(preview_collections['utilities']),
+    # )
     comp_effects: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['effects']),
     )
