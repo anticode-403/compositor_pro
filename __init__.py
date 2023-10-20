@@ -86,6 +86,7 @@ class compositor_pro_add_node(bpy.types.Operator):
         new_group.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == new_group
+        bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
 
