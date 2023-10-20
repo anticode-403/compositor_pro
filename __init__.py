@@ -38,6 +38,7 @@ class main_panel(bpy.types.Panel):
             panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
             panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
             #panel.operator('comp_pro.create_default', text="Create Default Setup")
+            #panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             
 
 class compositor_pro_props(bpy.types.PropertyGroup):
