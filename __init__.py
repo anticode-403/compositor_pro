@@ -96,6 +96,10 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         items=previews_from_directory_items(preview_collections['batches']),
         update=quick_add_batches
     )
+    comp_dev: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['dev']),
+        update=quick_add_dev
+    )
 
 class compositor_pro_add_node(bpy.types.Operator):
     bl_idname = 'comp_pro.add_node'
