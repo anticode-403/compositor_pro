@@ -31,7 +31,7 @@ class main_panel(bpy.types.Panel):
         if not context.space_data.tree_type == 'CompositorNodeTree':
             return
         if not context.scene.use_nodes:
-            panel.operator('comp_pro.enable_nodes', text='Enable Nodes')
+            panel.operator('comp_pro.enable_nodes', text="Enable Nodes")
         else:
             compositor = context.scene.node_tree
             panel = panel.column()
