@@ -179,7 +179,6 @@ class compositor_pro_enable_nodes(bpy.types.Operator):
         context.scene.use_nodes = True
         return {'FINISHED'}
 
-
 classes = [ compositor_pro_replace_grain, compositor_pro_enable_optimizations, compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
 
 def register():
