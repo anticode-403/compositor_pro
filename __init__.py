@@ -7,6 +7,7 @@ bl_info = {
 }
 
 import bpy
+from bpy_extras.io_utils import ImportHelper
 from . utility import recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
@@ -44,6 +45,8 @@ class main_panel(bpy.types.Panel):
             add_button = panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
+            if compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
+                panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
 
 class compositor_pro_props(bpy.types.PropertyGroup):
     def import_effects(self, context):
@@ -130,6 +133,31 @@ class compositor_pro_add_node(bpy.types.Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
+class compositor_pro_replace_grain(bpy.types.Operator, ImportHelper):
+    bl_idname = 'comp_pro.replace_grain'
+    bl_description = 'Replace the grain texture in the Grain+ NG'
+    bl_category = 'Node'
+    bl_label = 'Replace Grain Texture'
+
+    filter_glob = bpy.props.StringProperty(
+        default='*' + ';*'.join(bpy.path.extensions_image),
+        options={'HIDDEN'},
+    )
+
+    # def invoke(self, context, event):
+    #     context.window_manager.fileselect_add(self)
+    #     return {'RUNNING_MODAL'}
+
+    def execute(self, context):
+        grain_node = context.scene.node_tree.nodes.active
+        grain_texture_node = None
+        for node in grain_node.node_tree.nodes:
+            if node.name == 'Grain':
+                grain_texture_node = node
+        new_texture = bpy.data.images.load(filepath = self.filepath)
+        grain_texture_node.image = new_texture
+        return {'FINISHED'}
+
 class compositor_pro_enable_optimizations(bpy.types.Operator):
     bl_idname = 'comp_pro.enable_optimizations'
     bl_description = 'Enable Blender compositor optimizations'
@@ -157,7 +185,7 @@ class compositor_pro_enable_nodes(bpy.types.Operator):
         return {'FINISHED'}
 
 
-classes = [ compositor_pro_enable_optimizations, compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
+classes = [ compositor_pro_replace_grain, compositor_pro_enable_optimizations, compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
 
 def register():
     for cls in classes:
