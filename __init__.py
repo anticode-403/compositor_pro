@@ -2,7 +2,7 @@ bl_info = {
     "name" : "Compositor Pro",
     "author" : "anticode-403, Nihal Rahman",
     "blender" : (3, 6, 0),
-    "version" : (0, 0, 8),
+    "version" : (0, 0, 9),
     "category" : "Compositing"
 }
 
