@@ -31,7 +31,7 @@ class main_panel(bpy.types.Panel):
         if not context.space_data.tree_type == 'CompositorNodeTree':
             return
         if not context.scene.use_nodes:
-            panel.label(text="Please enable nodes.")
+            panel.operator('comp_pro.enable_nodes', text='Enable Nodes')
         else:
             compositor = context.scene.node_tree
             panel = panel.column()
@@ -146,8 +146,18 @@ class compositor_pro_enable_optimizations(bpy.types.Operator):
             compositor.use_opencl = False
         return {'FINISHED'}
 
+class compositor_pro_enable_nodes(bpy.types.Operator):
+    bl_idname = 'comp_pro.enable_nodes'
+    bl_description = 'Enable compositor nodes'
+    bl_category = 'Node'
+    bl_label = 'Enable Nodes'
 
-classes = [ compositor_pro_enable_optimizations, compositor_pro_add_node, main_panel, compositor_pro_props ]
+    def invoke(self, context, event):
+        context.scene.use_nodes = True
+        return {'FINISHED'}
+
+
+classes = [ compositor_pro_enable_optimizations, compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
 
 def register():
     for cls in classes:
