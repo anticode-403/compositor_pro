@@ -46,6 +46,7 @@ class main_panel(bpy.types.Panel):
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
             if compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
+                panel.separator()
                 panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
 
 class compositor_pro_props(bpy.types.PropertyGroup):
