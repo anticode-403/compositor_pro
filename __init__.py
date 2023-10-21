@@ -45,7 +45,6 @@ class main_panel(bpy.types.Panel):
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
 
-
 class compositor_pro_props(bpy.types.PropertyGroup):
     def import_effects(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
@@ -63,7 +62,6 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     def quick_add_batches(self, context):
         if context.scene.compositor_pro_props.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
-
 
     quick_add: bpy.props.BoolProperty(
         name = 'Quick Add',
