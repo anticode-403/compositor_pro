@@ -186,6 +186,7 @@ class compositor_pro_add_mixer(bpy.types.Operator):
     bl_label = 'Add Mixer'
 
     def invoke(self, context, event):
+        props = context.scene.compositor_pro_props
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         mixer = nodes.new(type='CompositorNodeMixRGB')
@@ -205,6 +206,8 @@ class compositor_pro_add_mixer(bpy.types.Operator):
                 secondary_node = selected_nodes[0]
             node_tree.links.new(eval(primary_node.outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
             node_tree.links.new(eval(secondary_node.outputs[0].path_from_id()), eval(mixer.inputs[2].path_from_id()))
+        mixer.inputs[0].default_value = props.mixer_fac
+        mixer.blend_type = props.mixer_blend_type
         mixer.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == mixer
