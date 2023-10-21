@@ -45,11 +45,35 @@ class main_panel(bpy.types.Panel):
             add_button = panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
-            if compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
+            if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
                 panel.separator()
                 panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
+            panel.separator()
+            mixer_panel = panel.box()
+            mixer_panel.label(text="Add Mix Node")
+            mixer_options = mixer_panel.row(align=True)
+            mixer_options.prop(settings, 'mixer_blend_type', text='')
+            mixer_options.prop(settings, 'mixer_fac', text='')
+            mixer_panel.operator('comp_pro.add_mixer', text="Add")
 
 class compositor_pro_props(bpy.types.PropertyGroup):
+    mixer_blend_type: bpy.props.EnumProperty(
+        name='Mixer Blend Type',
+        items=(
+            ('MIX', 'Mix', 'MIX'),
+            ('ADD', 'Add', 'ADD'),
+        ),
+        default='MIX'
+    )
+
+    mixer_fac: bpy.props.FloatProperty(
+        name='Mixer Factor',
+        subtype='FACTOR',
+        max=1.0,
+        min=0.0,
+        default=0.5
+    )
+
     def import_effects(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
     def import_utilities(self, context):
@@ -154,6 +178,38 @@ class compositor_pro_replace_grain(bpy.types.Operator, ImportHelper):
         grain_texture_node.image = new_texture
         return {'FINISHED'}
 
+class compositor_pro_add_mixer(bpy.types.Operator):
+    bl_idname = 'comp_pro.add_mixer'
+    bl_description = 'Add Mix node, with connections if possible.'
+    bl_category = 'Node'
+    bl_label = 'Add Mixer'
+
+    def invoke(self, context, event):
+        node_tree = context.scene.node_tree
+        nodes = node_tree.nodes
+        mixer = nodes.new(type='CompositorNodeMixRGB')
+        selected_nodes = []
+        for n in nodes:
+            if not n.select or n == mixer:
+                continue
+            selected_nodes.append(n)
+        if len(selected_nodes) == 1:
+            node_tree.links.new(eval(selected_nodes[0].outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
+        elif len(selected_nodes) == 2:
+            primary_node = selected_nodes[0]
+            secondary_node = selected_nodes[1]
+            if nodes.active in selected_nodes:
+                selected_nodes.remove(nodes.active)
+                primary_node = nodes.active
+                secondary_node = selected_nodes[0]
+            node_tree.links.new(eval(primary_node.outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
+            node_tree.links.new(eval(secondary_node.outputs[0].path_from_id()), eval(mixer.inputs[2].path_from_id()))
+        mixer.location = context.space_data.cursor_location
+        for n in nodes:
+            n.select = n == mixer
+        bpy.ops.node.translate_attach('INVOKE_DEFAULT')
+        return {'FINISHED'}
+
 class compositor_pro_enable_optimizations(bpy.types.Operator):
     bl_idname = 'comp_pro.enable_optimizations'
     bl_description = 'Enable Blender compositor optimizations'
@@ -180,7 +236,8 @@ class compositor_pro_enable_nodes(bpy.types.Operator):
         context.scene.use_nodes = True
         return {'FINISHED'}
 
-classes = [ compositor_pro_replace_grain, compositor_pro_enable_optimizations, compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
+classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
+           compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
 
 def register():
     for cls in classes:
