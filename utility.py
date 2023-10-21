@@ -8,6 +8,7 @@ preview_dir = join(main_dir,'thumbnails')
 effects_dir = join(preview_dir,'effects')
 utilities_dir = join(preview_dir,'utilities')
 batches_dir = join(preview_dir,'batches')
+batches_dir = join(preview_dir,'dev_tools')
 
 blender_dir = join(main_dir,'data')
 blender_file = join(blender_dir,'Compositor_Pro.blend')
@@ -27,6 +28,11 @@ prev_col = bpy.utils.previews.new()
 prev_col.my_previews_dir = batches_dir
 prev_col.my_previews = ()
 preview_collections['batches'] = prev_col
+
+prev_col = bpy.utils.previews.new()
+prev_col.my_previews_dir = dev_dir
+prev_col.my_previews = ()
+preview_collections['dev'] = prev_col
 
 def previews_from_directory_items(prev_col):
     enum_items = []

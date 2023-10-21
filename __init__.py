@@ -52,6 +52,8 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def import_batches(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
+    def import_dev(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
 
     def quick_add_effects(self, context):
         if context.scene.compositor_pro_props.quick_add:
@@ -62,6 +64,9 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     def quick_add_batches(self, context):
         if context.scene.compositor_pro_props.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
+    def quick_add_dev(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
 
     quick_add: bpy.props.BoolProperty(
         name = 'Quick Add',
@@ -75,6 +80,7 @@ class compositor_pro_props(bpy.types.PropertyGroup):
             ('effects', 'Effects', 'effects'),
             ('utilities', 'Utilities', 'utilities'),
             ('batches', 'Batches', 'batches'),
+            ('dev', 'Dev Tools', 'dev'),
         ),
         default='effects'
     )
