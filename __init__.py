@@ -139,11 +139,6 @@ class compositor_pro_replace_grain(bpy.types.Operator, ImportHelper):
     bl_category = 'Node'
     bl_label = 'Replace Grain Texture'
 
-    filter_glob = bpy.props.StringProperty(
-        default='*' + ';*'.join(bpy.path.extensions_image),
-        options={'HIDDEN'},
-    )
-
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
