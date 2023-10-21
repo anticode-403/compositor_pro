@@ -40,9 +40,10 @@ class main_panel(bpy.types.Panel):
                 panel.label(text="Update to Blender to 4.0 or install CM+6.1")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
-            panel.prop(settings, 'categories', expand=True)
-            panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
-            add_button = panel.row(align=True)
+            add_panel = panel.box()
+            add_panel.prop(settings, 'categories', expand=True)
+            add_panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
+            add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
