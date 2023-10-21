@@ -58,6 +58,21 @@ class main_panel(bpy.types.Panel):
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
 
 class compositor_pro_props(bpy.types.PropertyGroup):
+    categories: bpy.props.EnumProperty(
+        name='Category',
+        items=(
+            ('effects', 'Effects', 'effects'),
+            ('utilities', 'Utilities', 'utilities'),
+            ('batches', 'Batches', 'batches'),
+            ('dev', 'Dev Tools', 'dev'),
+        ),
+        default='effects'
+    )
+    quick_add: bpy.props.BoolProperty(
+        name = 'Quick Add',
+        description = '',
+        default = False
+    )
     mixer_blend_type: bpy.props.EnumProperty(
         name='Mixer Blend Type',
         items=(
@@ -66,7 +81,6 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         ),
         default='MIX'
     )
-
     mixer_fac: bpy.props.FloatProperty(
         name='Mixer Factor',
         subtype='FACTOR',
@@ -97,22 +111,6 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         if context.scene.compositor_pro_props.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
 
-    quick_add: bpy.props.BoolProperty(
-        name = 'Quick Add',
-        description = '',
-        default = False
-    )
-
-    categories: bpy.props.EnumProperty(
-        name='Category',
-        items=(
-            ('effects', 'Effects', 'effects'),
-            ('utilities', 'Utilities', 'utilities'),
-            ('batches', 'Batches', 'batches'),
-            ('dev', 'Dev Tools', 'dev'),
-        ),
-        default='effects'
-    )
     comp_utilities: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['utilities']),
         update=quick_add_utilities
