@@ -144,9 +144,9 @@ class compositor_pro_replace_grain(bpy.types.Operator, ImportHelper):
         options={'HIDDEN'},
     )
 
-    # def invoke(self, context, event):
-    #     context.window_manager.fileselect_add(self)
-    #     return {'RUNNING_MODAL'}
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
 
     def execute(self, context):
         grain_node = context.scene.node_tree.nodes.active
