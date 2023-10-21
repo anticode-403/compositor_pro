@@ -41,7 +41,9 @@ class main_panel(bpy.types.Panel):
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             panel.prop(settings, 'categories', expand=True)
             panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
-            panel.operator('comp_pro.add_node', text="Add").choice = settings.categories
+            add_button = panel.row(align=True)
+            add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
+            add_button.prop(settings, 'quick_add', text='', icon='TIME')
 
 
 class compositor_pro_props(bpy.types.PropertyGroup):
@@ -51,6 +53,23 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def import_batches(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
+
+    def quick_add_effects(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
+    def quick_add_utilities(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
+    def quick_add_batches(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
+
+
+    quick_add: bpy.props.BoolProperty(
+        name = 'Quick Add',
+        description = '',
+        default = False
+    )
 
     categories: bpy.props.EnumProperty(
         name='Category',
@@ -63,12 +82,15 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     )
     comp_utilities: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['utilities']),
+        update=quick_add_utilities
     )
     comp_effects: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['effects']),
+        update=quick_add_effects
     )
     comp_batches: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['batches']),
+        update=quick_add_batches
     )
 
 class compositor_pro_add_node(bpy.types.Operator):
