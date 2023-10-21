@@ -81,18 +81,12 @@ def recursive_node_fixer (node_group, context):
             continue
     return
 
-def has_color_management (context):
-    color_management_plus = [
-        'Camera Log',
-        'Log',
-        'RED IPP2',
-        'ACES Display',
-        'TCAMv2 Display',
-        'AgX ( Filmic 2.0 ) Display',
-        'Filmic Display'
-    ]
-    display_device = context.scene.display_settings.display_device
-    if display_device in color_management_plus:
-        return True
+def has_color_management ():
+    color_management_dir = ''
+    if len(bpy.utils.script_paths()) == 2:
+        color_management_dir = os.path.normpath(os.path.join(os.path.dirname(bpy.utils.script_paths()[0]), 'datafiles', 'colormanagement'))
     else:
-        return False
+        color_management_dir = os.path.normpath(os.path.join(os.path.dirname(bpy.utils.script_paths()[1]), 'datafiles', 'colormanagement'))
+    ocio_file_path = join(color_management_dir, 'config.ocio')
+    ocio_file = open(ocio_file_path, 'r')
+    return ocio_file.read(18) == '# Color Management'
