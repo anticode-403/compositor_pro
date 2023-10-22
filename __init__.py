@@ -8,7 +8,7 @@ bl_info = {
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
-from . utility import recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -56,6 +56,10 @@ class main_panel(bpy.types.Panel):
             mixer_options.prop(settings, 'mixer_blend_type', text='')
             mixer_options.prop(settings, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
+            colorgrade_panel = panel.box()
+            create_active_colorspace = colorgrade_panel.row()
+            create_active_colorspace.prop(settings, 'create_active_colorspace_sequencer', text='')
+            create_active_colorspace.operator('comp_pro.create_active_colorspace', text="Create Active Colorspace")
 
 class compositor_pro_props(bpy.types.PropertyGroup):
     categories: bpy.props.EnumProperty(
@@ -87,6 +91,11 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         max=1.0,
         min=0.0,
         default=0.1
+    )
+    create_active_colorspace_sequencer: bpy.props.EnumProperty(
+        name='Active Colorspace Sequencer',
+        items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
+        default='AgX Base Log'
     )
 
     def import_effects(self, context):
@@ -214,6 +223,49 @@ class compositor_pro_add_mixer(bpy.types.Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
+class compositor_pro_create_active_colorspace(bpy.types.Operator):
+    bl_idname='comp_pro.create_active_colorspace'
+    bl_description='Create an active colorspace node block'
+    bl_category='Node'
+    bl_label='Create Active Colorspace'
+
+    def invoke(self, context, event):
+        props = context.scene.compositor_pro_props
+        node_tree = context.scene.node_tree
+        nodes = node_tree.nodes
+        to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to create_active_colorspace_sequencer
+        from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from create_active_colorspace_sequencer to Linear Rec.709
+        to_active.from_color_space = 'Linear Rec.709'
+        to_active.to_color_space = props.create_active_colorspace_sequencer
+        from_active.from_color_space = props.create_active_colorspace_sequencer
+        from_active.to_color_space = 'Linear Rec.709'
+        if nodes.active and nodes.active.select and len(nodes.active.inputs) != 0 and len(nodes.active.outputs) != 0:
+            input_socket = nodes.active.inputs[0]
+            for socket in nodes.active.inputs:
+                if socket.type == 'RGBA':
+                    input_socket = socket
+                    break
+            for link in nodes.active.internal_links:
+                if link.to_socket == nodes.active.outputs[0]:
+                    input_socket = link.from_socket
+            for link in node_tree.links.values():
+                if link.to_node == nodes.active and link.to_socket.type == 'RGBA':
+                    node_tree.links.new(eval(link.from_socket.path_from_id()), eval(to_active.inputs[0].path_from_id()))
+                elif link.from_node == nodes.active and link.from_socket == nodes.active.outputs[0]:
+                    node_tree.links.new(eval(from_active.outputs[0].path_from_id()), eval(link.to_socket.path_from_id()))
+            node_tree.links.new(eval(from_active.inputs[0].path_from_id()), eval(nodes.active.outputs[0].path_from_id()))
+            node_tree.links.new(eval(input_socket.path_from_id()), eval(to_active.outputs[0].path_from_id()))
+            to_active.location = (nodes.active.location.x - to_active.width - 100, nodes.active.location.y)
+            from_active.location = (nodes.active.location.x + nodes.active.width + 100, nodes.active.location.y)
+        else:
+            node_tree.links.new(eval(to_active.outputs[0].path_from_id()), eval(from_active.inputs[0].path_from_id()))
+            to_active.location = (context.space_data.cursor_location.x - 150, context.space_data.cursor_location.y)
+            from_active.location = (context.space_data.cursor_location.x + 150, context.space_data.cursor_location.y)
+            for n in nodes:
+                n.select = n == to_active or n == from_active
+            bpy.ops.node.translate_attach('INVOKE_DEFAULT')
+        return {'FINISHED'}
+
 class compositor_pro_enable_optimizations(bpy.types.Operator):
     bl_idname = 'comp_pro.enable_optimizations'
     bl_description = 'Enable Blender compositor optimizations'
@@ -241,7 +293,8 @@ class compositor_pro_enable_nodes(bpy.types.Operator):
         return {'FINISHED'}
 
 classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
-           compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props ]
+            compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
+            compositor_pro_create_active_colorspace ]
 
 def register():
     for cls in classes:

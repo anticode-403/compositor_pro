@@ -91,3 +91,6 @@ def has_color_management ():
     ocio_file_path = join(color_management_dir, 'config.ocio')
     ocio_file = open(ocio_file_path, 'r')
     return ocio_file.read(18) == '# Color Management'
+
+def color_management_list_to_tuples(enum_item):
+    return (enum_item.identifier, enum_item.name, enum_item.description)
