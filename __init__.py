@@ -86,7 +86,7 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         subtype='FACTOR',
         max=1.0,
         min=0.0,
-        default=0.5
+        default=0.1
     )
 
     def import_effects(self, context):
