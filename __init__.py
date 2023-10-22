@@ -42,7 +42,7 @@ class main_panel(bpy.types.Panel):
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
             add_panel.prop(settings, 'categories', expand=True)
-            add_panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True)
+            add_panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True, scale_popup=8)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
