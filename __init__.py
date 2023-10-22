@@ -192,6 +192,8 @@ class compositor_pro_add_mixer(bpy.types.Operator):
         for n in nodes:
             if not n.select or n == mixer:
                 continue
+            if len(n.outputs) == 0:
+                continue
             selected_nodes.append(n)
         if len(selected_nodes) == 1:
             node_tree.links.new(eval(selected_nodes[0].outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
