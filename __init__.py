@@ -56,8 +56,10 @@ class main_panel(bpy.types.Panel):
             mixer_options.prop(settings, 'mixer_blend_type', text='')
             mixer_options.prop(settings, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
+            panel.separator()
             colorgrade_panel = panel.box()
-            create_active_colorspace = colorgrade_panel.row()
+            colorgrade_panel.label(text="Color Grading")
+            create_active_colorspace = colorgrade_panel.row(align=True)
             create_active_colorspace.prop(settings, 'create_active_colorspace_sequencer', text='')
             create_active_colorspace.operator('comp_pro.create_active_colorspace', text="Create Active Colorspace")
 
