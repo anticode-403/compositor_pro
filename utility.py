@@ -1,5 +1,5 @@
 import bpy
-import bpy.previews.utils # I don't understand why this fixes an issue, when it shouldn't do anything, but whatever
+import bpy.utils.previews # I don't understand why this fixes an issue, when it shouldn't do anything, but whatever
 import os
 from os.path import join, dirname, realpath
 
