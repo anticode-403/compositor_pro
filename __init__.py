@@ -342,7 +342,7 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
     choice: bpy.props.StringProperty()
 
     def invoke(self, context, event):
-        node = eval(eval(get_active_node_path(self.choice)))
+        node = eval(get_active_node_path(self.choice))
         is_fav = check_favorite(node)
         if is_fav:
             rem_favorite(node)
@@ -359,7 +359,7 @@ class compositor_pro_open_info(bpy.types.Operator):
     choice: bpy.props.StringProperty()
 
     def invoke(self, context, event):
-        node = eval(eval(get_active_node_path(self.choice)))
+        node = eval(get_active_node_path(self.choice))
         print(node)
         return {'FINISHED'}
 
