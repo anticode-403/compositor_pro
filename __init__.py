@@ -8,7 +8,7 @@ bl_info = {
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
-from . utility import previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import make_cat_list, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -75,16 +75,7 @@ class main_panel(bpy.types.Panel):
 class compositor_pro_props(bpy.types.PropertyGroup):
     categories: bpy.props.EnumProperty(
         name='Category',
-        items=(
-            ('mixed', 'Mixed Effects', 'mixed'),
-            ('unmixed', 'Unmixed Effects', 'unmixed'),
-            ('color', 'Color Grading', 'color'),
-            ('batches', 'Batches', 'batches'),
-            ('utilities', 'Utilities', 'utilities'),
-            ('dev', 'Dev Tools', 'dev'),
-            ('favorites', 'Favorites', 'favorites'),
-        ),
-        default='mixed'
+        items=make_cat_list
     )
     quick_add: bpy.props.BoolProperty(
         name = 'Quick Add',
@@ -174,7 +165,7 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         update=quick_add_dev
     )
     comp_fav: bpy.props.EnumProperty(
-        items=previews_from_favorites(preview_collections['fav']),
+        items=previews_from_favorites,
         update=quick_add_fav
     )
 
@@ -348,6 +339,7 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
             rem_favorite(node)
         else:
             add_favorite(self.choice, node)
+        # update_favorites(context)
         return {'FINISHED'}
 
 class compositor_pro_open_info(bpy.types.Operator):

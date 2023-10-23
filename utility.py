@@ -30,6 +30,7 @@ def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
 
 def previews_from_directory_items(prev_col):
+    print('creating other preview')
     enum_items = []
 
     if bpy.context is None:
@@ -55,27 +56,27 @@ def previews_from_directory_items(prev_col):
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
 
-def previews_from_favorites(prev_col):
+def previews_from_favorites(self, context):
+    prev_col = preview_collections['fav']
     enum_items = []
 
     if bpy.context is None:
         return enum_items
 
-    if os.path.exists(favorite_file):
-        favorites = open(favorite_file, 'r')
+    if has_favorites():
         image_paths = []
-        image_names = []
-        for fpath in favorites.readlines():
-            image_paths.append(join(preview_dir, '{}.png'.format(fpath)))
-            cat, name = fpath.split('/')
-            image_names.append(name)
+        with open(favorite_file, 'r') as favorites:
+            for fpath in favorites.readlines():
+                image_paths.append(join(preview_dir, '{}.png'.format(fpath.strip('\n'))))
         for i, filepath in enumerate(image_paths):
+            name = os.path.basename(filepath)
             icon = prev_col.get(name)
             if not icon:
                 thumb = prev_col.load(name, filepath, 'IMAGE')
             else:
                 thumb = prev_col[name]
-            enum_items.append((name, name, '', thumb.icon_id, i))
+            name = os.path.basename(filepath)
+            enum_items.append((name[0:-4], name[0:-4], '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     return prev_col.my_previews
 
@@ -115,24 +116,58 @@ def color_management_list_to_tuples(enum_item):
 
 def add_favorite(category, node):
     favorites = open(favorite_file, 'a')
-    favorites.write('\n' + join(category, node))
+    favorites.write(join(category, node) + '\n')
     return
 
 def rem_favorite(node):
-    favorites_read = open(favorite_file, 'r')
-    favorites_write = open(favorite_file, 'w')
-    for fpath in favorites_read.readlines():
-        if node in fpath:
-            continue
-        favorites_write.write(fpath)
+    with open(favorite_file, 'r') as favorites:
+        with open(join(data_dir, 'temp.txt'), 'w') as temp:
+            for line in favorites.readlines():
+                if node in line:
+                    continue
+                temp.write(line)
+    os.replace(join(data_dir, 'temp.txt'), favorite_file)
     return
 
 def check_favorite(node):
-    if not os.path.exists(favorite_file):
+    if not has_favorites():
         return False
     favorites = open(favorite_file, 'r')
     for fpath in favorites.readlines():
-        cat, fnode = fpath.split('/')
+        fpath = fpath.strip('\n')
+        if len(fpath) == 0:
+            continue
+        cat, fnode = fpath.split('\\')
         if fnode == node:
             return True
     return False
+
+def has_favorites():
+    if not os.path.exists(favorite_file):
+        return False
+    favorites = open(favorite_file, 'r')
+    if len(favorites.readline()) == 0:
+        return False
+    return True
+
+def make_cat_list(self, context):
+    if has_favorites():
+        return [
+            ('mixed', 'Mixed Effects', 'mixed'),
+            ('unmixed', 'Unmixed Effects', 'unmixed'),
+            ('color', 'Color Grading', 'color'),
+            ('batches', 'Batches', 'batches'),
+            ('utilities', 'Utilities', 'utilities'),
+            ('dev', 'Dev Tools', 'dev'),
+            None,
+            ('fav', 'Favorites', 'fav'),
+        ]
+    else:
+        return [
+            ('mixed', 'Mixed Effects', 'mixed'),
+            ('unmixed', 'Unmixed Effects', 'unmixed'),
+            ('color', 'Color Grading', 'color'),
+            ('batches', 'Batches', 'batches'),
+            ('utilities', 'Utilities', 'utilities'),
+            ('dev', 'Dev Tools', 'dev'),
+        ]
