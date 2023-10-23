@@ -46,13 +46,13 @@ class main_panel(bpy.types.Panel):
             add_panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True, scale_popup=8)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(settings.categories)))).choice = settings.categories
+            add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = settings.categories
             add_button.operator(
                 'comp_pro.toggle_favorite',
                 text='',
                 icon='HEART' if not check_favorite(eval(get_active_node_path(settings.categories))) else 'FUND',
                 depress=check_favorite(eval(get_active_node_path(settings.categories)))
             ).choice = settings.categories
-            add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
                 panel.separator()
