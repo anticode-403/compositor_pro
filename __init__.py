@@ -337,7 +337,7 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
         if is_fav:
             rem_favorite(node)
             if not has_favorites():
-                context.scene.compositor_pro_props.categories = 0
+                context.scene.compositor_pro_props.categories = 'mixed'
         else:
             add_favorite(self.choice, node)
         return {'FINISHED'}
