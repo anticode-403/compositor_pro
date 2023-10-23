@@ -80,22 +80,16 @@ def previews_from_favorites(self, context):
     return prev_col.my_previews
 
 def recursive_node_fixer (node_group, context):
-    print('Chatty recursive node fixer called on {}!'.format(node_group.node_tree.name))
     for node in node_group.node_tree.nodes:
-        print('Found {}!'.format(node.bl_idname))
         if node.bl_idname == 'CompositorNodeGroup':
-            print('Found a compositor node!')
             if node.node_tree.name.endswith('.001'):
-                print('Replacing duplicate compositor pro node group!')
                 node.node_tree = bpy.data.node_groups.get(node.node_tree.name[0:-4])
                 continue
             if node.node_tree.name == '[ Utility ] Global Drivers':
-                print('Fixing global drivers!')
                 for fcurve in node.node_tree.animation_data.drivers:
                     for var in fcurve.driver.variables:
                         var.targets[0].id = context.scene
                 continue
-            print('Going deeper!')
             recursive_node_fixer(node, context)
             continue
     return
