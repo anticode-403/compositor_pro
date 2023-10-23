@@ -153,21 +153,21 @@ def has_favorites():
 def make_cat_list(self, context):
     if has_favorites():
         return [
-            ('mixed', 'Mixed Effects', 'mixed'),
-            ('unmixed', 'Unmixed Effects', 'unmixed'),
-            ('color', 'Color Grading', 'color'),
-            ('batches', 'Batches', 'batches'),
-            ('utilities', 'Utilities', 'utilities'),
-            ('dev', 'Dev Tools', 'dev'),
+            ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
+            ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
+            ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
+            ('batches', 'Batches', 'Preset effect configurations'),
+            ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
+            ('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'),
             None,
-            ('fav', 'Favorites', 'fav'),
+            ('fav', 'Favorites', 'Your favorite nodes'),
         ]
     else:
         return [
-            ('mixed', 'Mixed Effects', 'mixed'),
-            ('unmixed', 'Unmixed Effects', 'unmixed'),
-            ('color', 'Color Grading', 'color'),
-            ('batches', 'Batches', 'batches'),
-            ('utilities', 'Utilities', 'utilities'),
-            ('dev', 'Dev Tools', 'dev'),
+            ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
+            ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
+            ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
+            ('batches', 'Batches', 'Preset effect configurations'),
+            ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
+            ('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'),
         ]

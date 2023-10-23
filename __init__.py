@@ -85,8 +85,8 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     mixer_blend_type: bpy.props.EnumProperty(
         name='Mixer Blend Type',
         items=(
-            ('MIX', 'Mix', 'MIX'),
-            ('ADD', 'Add', 'ADD'),
+            ('MIX', 'Mix', 'Mix two inputs together'),
+            ('ADD', 'Add', 'Add one input to another'),
         ),
         default='MIX'
     )
