@@ -115,7 +115,7 @@ def color_management_list_to_tuples(enum_item):
 
 def add_favorite(category, node):
     favorites = open(favorite_file, 'a')
-    favorites.write('\m' + join(category, node))
+    favorites.write('\n' + join(category, node))
     return
 
 def rem_favorite(node):
