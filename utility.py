@@ -30,7 +30,6 @@ def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
 
 def previews_from_directory_items(prev_col):
-    print('creating other preview')
     enum_items = []
 
     if bpy.context is None:
