@@ -23,14 +23,13 @@ for key in preview_dirs.keys():
     prev_col = bpy.utils.previews.new()
     prev_col.my_previews_dir = preview_dirs[key]
     prev_col.my_previews = ()
-    preview_collections[key[0:-4]] = prev_col
+    preview_collections[key.removesuffix('_dir')] = prev_col
 preview_collections['fav'] = bpy.utils.previews.new()
 
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
 
 def previews_from_directory_items(prev_col):
-    print('creating other preview')
     enum_items = []
 
     if bpy.context is None:
@@ -80,22 +79,16 @@ def previews_from_favorites(self, context):
     return prev_col.my_previews
 
 def recursive_node_fixer (node_group, context):
-    print('Chatty recursive node fixer called on {}!'.format(node_group.node_tree.name))
     for node in node_group.node_tree.nodes:
-        print('Found {}!'.format(node.bl_idname))
         if node.bl_idname == 'CompositorNodeGroup':
-            print('Found a compositor node!')
             if node.node_tree.name.endswith('.001'):
-                print('Replacing duplicate compositor pro node group!')
                 node.node_tree = bpy.data.node_groups.get(node.node_tree.name[0:-4])
                 continue
             if node.node_tree.name == '[ Utility ] Global Drivers':
-                print('Fixing global drivers!')
                 for fcurve in node.node_tree.animation_data.drivers:
                     for var in fcurve.driver.variables:
                         var.targets[0].id = context.scene
                 continue
-            print('Going deeper!')
             recursive_node_fixer(node, context)
             continue
     return
@@ -150,23 +143,15 @@ def has_favorites():
     return True
 
 def make_cat_list(self, context):
+    cat_list = [
+        ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
+        ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
+        ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
+        ('batches', 'Batches', 'Preset effect configurations'),
+        ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
+        ('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'),
+    ]
     if has_favorites():
-        return [
-            ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
-            ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
-            ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
-            ('batches', 'Batches', 'Preset effect configurations'),
-            ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
-            ('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'),
-            None,
-            ('fav', 'Favorites', 'Your favorite nodes'),
-        ]
-    else:
-        return [
-            ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
-            ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
-            ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
-            ('batches', 'Batches', 'Preset effect configurations'),
-            ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
-            ('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'),
-        ]
+        cat_list.append(None)
+        cat_list.append(('fav', 'Favorites', 'Your favorite nodes'))
+    return cat_list

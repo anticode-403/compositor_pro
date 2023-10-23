@@ -2,13 +2,13 @@ bl_info = {
     "name" : "Compositor Pro",
     "author" : "anticode-403, Nihal Rahman",
     "blender" : (3, 6, 0),
-    "version" : (0, 0, 10),
+    "version" : (0, 1, 1),
     "category" : "Compositing"
 }
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
-from . utility import make_cat_list, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -38,7 +38,7 @@ class main_panel(bpy.types.Panel):
             panel = panel.column()
             if bpy.app.version < (4, 0, 0) and not has_color_management():
                 panel.label(text="Update to Blender to 4.0 or install CM+6.1")
-            if not compositor.use_groupnode_buffer or not compositor.use_two_pass:
+            if not compositor.use_groupnode_buffer or not compositor.use_two_pass or (bpy.app.version < (4, 0, 0) and compositor.use_opencl) or (bpy.app.version > (4,0,0) and not compositor.use_opencl):
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
@@ -336,9 +336,10 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
         is_fav = check_favorite(node)
         if is_fav:
             rem_favorite(node)
+            if not has_favorites():
+                context.scene.compositor_pro_props.categories = 'mixed'
         else:
             add_favorite(self.choice, node)
-        # update_favorites(context)
         return {'FINISHED'}
 
 class compositor_pro_open_info(bpy.types.Operator):
