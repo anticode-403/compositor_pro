@@ -51,7 +51,7 @@ def previews_from_directory_items(prev_col):
                 thumb = prev_col.load(name, filepath, 'IMAGE')
             else:
                 thumb = prev_col[name]
-            enum_items.append((name.split('.png')[0], name.split('.png')[0], '', thumb.icon_id, i))
+            enum_items.append((name.removesuffix('.png'), name.removesuffix('.png'), '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
@@ -64,19 +64,18 @@ def previews_from_favorites(self, context):
         return enum_items
 
     if has_favorites():
-        image_paths = []
         with open(favorite_file, 'r') as favorites:
-            for fpath in favorites.readlines():
-                image_paths.append(join(preview_dir, '{}.png'.format(fpath.strip('\n'))))
-        for i, filepath in enumerate(image_paths):
-            name = os.path.basename(filepath)
-            icon = prev_col.get(name)
-            if not icon:
-                thumb = prev_col.load(name, filepath, 'IMAGE')
-            else:
-                thumb = prev_col[name]
-            name = os.path.basename(filepath)
-            enum_items.append((name[0:-4], name[0:-4], '', thumb.icon_id, i))
+            for i, fpath in enumerate(favorites.readlines()):
+                fpath = fpath.strip('\n')
+                filepath = join(preview_dir, '{}.png'.format(fpath))
+                cat, node_name = fpath.split('\\')
+                image_name = node_name + '.png'
+                icon = prev_col.get(image_name)
+                if not icon:
+                    thumb = prev_col.load(image_name, filepath, 'IMAGE')
+                else:
+                    thumb = prev_col[image_name]
+                enum_items.append((node_name, node_name, '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     return prev_col.my_previews
 
