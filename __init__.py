@@ -8,7 +8,7 @@ bl_info = {
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
-from . utility import make_cat_list, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -336,9 +336,10 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
         is_fav = check_favorite(node)
         if is_fav:
             rem_favorite(node)
+            if not has_favorites():
+                context.scene.compositor_pro_props.categories = 0
         else:
             add_favorite(self.choice, node)
-        # update_favorites(context)
         return {'FINISHED'}
 
 class compositor_pro_open_info(bpy.types.Operator):
