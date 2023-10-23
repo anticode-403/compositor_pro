@@ -23,7 +23,7 @@ for key in preview_dirs.keys():
     prev_col = bpy.utils.previews.new()
     prev_col.my_previews_dir = preview_dirs[key]
     prev_col.my_previews = ()
-    preview_collections[key[0:-4]] = prev_col
+    preview_collections[key.removesuffix('_dir')] = prev_col
 preview_collections['fav'] = bpy.utils.previews.new()
 
 def get_active_node_path(choice):
