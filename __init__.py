@@ -48,7 +48,7 @@ class main_panel(bpy.types.Panel):
                 'comp_pro.toggle_favorite',
                 text='',
                 icon='HEART' if not check_favorite(eval(get_active_node_path(settings.categories))) else 'FUND',
-                depressed=check_favorite(eval(get_active_node_path(settings.categories)))
+                depress=check_favorite(eval(get_active_node_path(settings.categories)))
             ).choice = settings.categories
             favorite_info_col.operator('comp_pro.open_info', text='', icon='QUESTION').choice = settings.categories
             icon_view_row.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True, scale_popup=8)
