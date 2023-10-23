@@ -8,7 +8,7 @@ bl_info = {
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
-from . utility import color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -41,8 +41,17 @@ class main_panel(bpy.types.Panel):
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
-            add_panel.prop(settings, 'categories', expand=True)
-            add_panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True, scale_popup=8)
+            add_panel.prop(settings, 'categories')
+            icon_view_row = add_panel.row(align=True)
+            favorite_info_col = icon_view_row.column(align=True)
+            favorite_info_col.operator(
+                'comp_pro.toggle_favorite',
+                text='',
+                icon='HEART' if not check_favorite(eval(get_active_node_path(settings.categories))) else 'FUND',
+                depressed=check_favorite(eval(get_active_node_path(settings.categories)))
+            ).choice = settings.categories
+            favorite_info_col.operator('comp_pro.open_info', text='', icon='QUESTION').choice = settings.categories
+            icon_view_row.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True, scale_popup=8)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add").choice = settings.categories
             add_button.prop(settings, 'quick_add', text='', icon='TIME')
@@ -67,12 +76,15 @@ class compositor_pro_props(bpy.types.PropertyGroup):
     categories: bpy.props.EnumProperty(
         name='Category',
         items=(
-            ('effects', 'Effects', 'effects'),
-            ('utilities', 'Utilities', 'utilities'),
+            ('mixed', 'Mixed Effects', 'mixed'),
+            ('unmixed', 'Unmixed Effects', 'unmixed'),
+            ('color', 'Color Grading', 'color'),
             ('batches', 'Batches', 'batches'),
+            ('utilities', 'Utilities', 'utilities'),
             ('dev', 'Dev Tools', 'dev'),
+            ('favorites', 'Favorites', 'favorites'),
         ),
-        default='effects'
+        default='mixed'
     )
     quick_add: bpy.props.BoolProperty(
         name = 'Quick Add',
@@ -100,43 +112,70 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         default='AgX Base Log'
     )
 
-    def import_effects(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
-    def import_utilities(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
+    def import_mixed(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='mixed')
+    def import_unmixed(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='unmixed')
+    def import_color(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='color')
     def import_batches(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
+    def import_utilities(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def import_dev(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
+    def import_fav(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
 
-    def quick_add_effects(self, context):
+    def quick_add_mixed(self, context):
         if context.scene.compositor_pro_props.quick_add:
-            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='effects')
-    def quick_add_utilities(self, context):
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='mixed')
+    def quick_add_unmixed(self, context):
         if context.scene.compositor_pro_props.quick_add:
-            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='unmixed')
+    def quick_add_color(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='color')
     def quick_add_batches(self, context):
         if context.scene.compositor_pro_props.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
+    def quick_add_utilities(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def quick_add_dev(self, context):
         if context.scene.compositor_pro_props.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
+    def quick_add_fav(self, context):
+        if context.scene.compositor_pro_props.quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
 
-    comp_utilities: bpy.props.EnumProperty(
-        items=previews_from_directory_items(preview_collections['utilities']),
-        update=quick_add_utilities
+    comp_mixed: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['mixed']),
+        update=quick_add_mixed
     )
-    comp_effects: bpy.props.EnumProperty(
-        items=previews_from_directory_items(preview_collections['effects']),
-        update=quick_add_effects
+    comp_unmixed: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['unmixed']),
+        update=quick_add_unmixed
+    )
+    comp_color: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['color']),
+        update=quick_add_color
     )
     comp_batches: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['batches']),
         update=quick_add_batches
     )
+    comp_utilities: bpy.props.EnumProperty(
+        items=previews_from_directory_items(preview_collections['utilities']),
+        update=quick_add_utilities
+    )
     comp_dev: bpy.props.EnumProperty(
         items=previews_from_directory_items(preview_collections['dev']),
         update=quick_add_dev
+    )
+    comp_fav: bpy.props.EnumProperty(
+        items=previews_from_favorites(preview_collections['fav']),
+        update=quick_add_fav
     )
 
 class compositor_pro_add_node(bpy.types.Operator):
@@ -149,7 +188,7 @@ class compositor_pro_add_node(bpy.types.Operator):
 
     def invoke(self, context, event):
         #find node
-        group_name = eval('bpy.context.scene.compositor_pro_props.comp_{}'.format(self.choice))
+        group_name = eval(get_active_node_path(self.choice))
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         #append
@@ -294,9 +333,39 @@ class compositor_pro_enable_nodes(bpy.types.Operator):
         context.scene.use_nodes = True
         return {'FINISHED'}
 
+class compositor_pro_toggle_favorite(bpy.types.Operator):
+    bl_idname = 'comp_pro.toggle_favorite'
+    bl_description = 'Add a node to your favorites list'
+    bl_category = 'Node'
+    bl_label = 'Add Favorite'
+
+    choice: bpy.props.StringProperty()
+
+    def invoke(self, context, event):
+        node = eval(eval(get_active_node_path(self.choice)))
+        is_fav = check_favorite(node)
+        if is_fav:
+            rem_favorite(node)
+        else:
+            add_favorite(self.choice, node)
+        return {'FINISHED'}
+
+class compositor_pro_open_info(bpy.types.Operator):
+    bl_idname = 'comp_pro.open_info'
+    bl_description = 'Open the documentation for the given node'
+    bl_category = 'Node'
+    bl_label = 'Open Info'
+
+    choice: bpy.props.StringProperty()
+
+    def invoke(self, context, event):
+        node = eval(eval(get_active_node_path(self.choice)))
+        print(node)
+        return {'FINISHED'}
+
 classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_create_active_colorspace ]
+            compositor_pro_create_active_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite ]
 
 def register():
     for cls in classes:
