@@ -38,7 +38,7 @@ class main_panel(bpy.types.Panel):
             panel = panel.column()
             if bpy.app.version < (4, 0, 0) and not has_color_management():
                 panel.label(text="Update to Blender to 4.0 or install CM+6.1")
-            if not compositor.use_groupnode_buffer or not compositor.use_two_pass or (bpy.app.version < (4, 0, 0) and compositor.use_opencl) or (bpy.app.version > (4,0,0) and not compositor.use_opencl):
+            if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
@@ -307,10 +307,10 @@ class compositor_pro_enable_optimizations(bpy.types.Operator):
         compositor = context.scene.node_tree
         compositor.use_groupnode_buffer = True
         compositor.use_two_pass = True
-        if bpy.app.version > (4, 0, 0):
-            compositor.use_opencl = True
-        else:
-            compositor.use_opencl = False
+        # if bpy.app.version > (4, 0, 0):
+        #     compositor.use_opencl = True
+        # else:
+        compositor.use_opencl = False
         return {'FINISHED'}
 
 class compositor_pro_enable_nodes(bpy.types.Operator):
