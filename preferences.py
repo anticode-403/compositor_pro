@@ -15,9 +15,11 @@ class compositor_pro_addon_preferences(AddonPreferences):
             return
 
     def get_favorites(self):
-        if self['favorites'] is None:
+        try:
+            return self['favorites']
+        except:
             self['favorites'] = ''
-        return self['favorites']
+            return self['favorites']
 
     bl_idname = __package__
 
