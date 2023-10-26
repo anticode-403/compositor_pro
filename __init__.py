@@ -7,11 +7,13 @@ bl_info = {
 }
 
 import bpy
+from bpy.types import Operator, Panel, PropertyGroup
+from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
 from . utility import make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
-class main_panel(bpy.types.Panel):
+class main_panel(Panel):
     bl_label = "Compositor Pro"
     bl_category = "Compositor Pro"
     bl_space_type = 'NODE_EDITOR'
@@ -72,12 +74,12 @@ class main_panel(bpy.types.Panel):
             create_active_colorspace.prop(props, 'create_active_colorspace_sequencer', text='')
             create_active_colorspace.operator('comp_pro.create_active_colorspace', text="Create Active Colorspace")
 
-class compositor_pro_props(bpy.types.PropertyGroup):
-    categories: bpy.props.EnumProperty(
+class compositor_pro_props(PropertyGroup):
+    categories: EnumProperty(
         name='Category',
         items=make_cat_list
     )
-    mixer_blend_type: bpy.props.EnumProperty(
+    mixer_blend_type: EnumProperty(
         name='Mixer Blend Type',
         items=(
             ('MIX', 'Mix', 'Mix two inputs together'),
@@ -85,14 +87,14 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         ),
         default='MIX'
     )
-    mixer_fac: bpy.props.FloatProperty(
+    mixer_fac: FloatProperty(
         name='Mixer Factor',
         subtype='FACTOR',
         max=1.0,
         min=0.0,
         default=0.1
     )
-    create_active_colorspace_sequencer: bpy.props.EnumProperty(
+    create_active_colorspace_sequencer: EnumProperty(
         name='Active Colorspace Sequencer',
         items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
         default='AgX Base Log'
@@ -135,42 +137,42 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
 
-    comp_mixed: bpy.props.EnumProperty(
+    comp_mixed: EnumProperty(
         items=previews_from_directory_items(preview_collections['mixed']),
         update=quick_add_mixed
     )
-    comp_unmixed: bpy.props.EnumProperty(
+    comp_unmixed: EnumProperty(
         items=previews_from_directory_items(preview_collections['unmixed']),
         update=quick_add_unmixed
     )
-    comp_color: bpy.props.EnumProperty(
+    comp_color: EnumProperty(
         items=previews_from_directory_items(preview_collections['color']),
         update=quick_add_color
     )
-    comp_batches: bpy.props.EnumProperty(
+    comp_batches: EnumProperty(
         items=previews_from_directory_items(preview_collections['batches']),
         update=quick_add_batches
     )
-    comp_utilities: bpy.props.EnumProperty(
+    comp_utilities: EnumProperty(
         items=previews_from_directory_items(preview_collections['utilities']),
         update=quick_add_utilities
     )
-    comp_dev: bpy.props.EnumProperty(
+    comp_dev: EnumProperty(
         items=previews_from_directory_items(preview_collections['dev']),
         update=quick_add_dev
     )
-    comp_fav: bpy.props.EnumProperty(
+    comp_fav: EnumProperty(
         items=previews_from_favorites,
         update=quick_add_fav
     )
 
-class compositor_pro_add_node(bpy.types.Operator):
+class compositor_pro_add_node(Operator):
     bl_idname = 'comp_pro.add_node'
     bl_description = 'Add Compositor Node'
     bl_category = 'Node'
     bl_label = 'Add Node'
 
-    choice: bpy.props.StringProperty()
+    choice: StringProperty()
 
     def invoke(self, context, event):
         #find node
@@ -193,7 +195,7 @@ class compositor_pro_add_node(bpy.types.Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_replace_grain(bpy.types.Operator, ImportHelper):
+class compositor_pro_replace_grain(Operator, ImportHelper):
     bl_idname = 'comp_pro.replace_grain'
     bl_description = 'Replace the grain texture in the Grain+ NG'
     bl_category = 'Node'
@@ -213,7 +215,7 @@ class compositor_pro_replace_grain(bpy.types.Operator, ImportHelper):
         grain_texture_node.image = new_texture
         return {'FINISHED'}
 
-class compositor_pro_add_mixer(bpy.types.Operator):
+class compositor_pro_add_mixer(Operator):
     bl_idname = 'comp_pro.add_mixer'
     bl_description = 'Add Mix node, with connections if possible.'
     bl_category = 'Node'
@@ -250,7 +252,7 @@ class compositor_pro_add_mixer(bpy.types.Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_create_active_colorspace(bpy.types.Operator):
+class compositor_pro_create_active_colorspace(Operator):
     bl_idname='comp_pro.create_active_colorspace'
     bl_description='Create an active colorspace node block'
     bl_category='Node'
@@ -293,7 +295,7 @@ class compositor_pro_create_active_colorspace(bpy.types.Operator):
             bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_enable_optimizations(bpy.types.Operator):
+class compositor_pro_enable_optimizations(Operator):
     bl_idname = 'comp_pro.enable_optimizations'
     bl_description = 'Enable Blender compositor optimizations'
     bl_category = 'Node'
@@ -309,7 +311,7 @@ class compositor_pro_enable_optimizations(bpy.types.Operator):
         compositor.use_opencl = False
         return {'FINISHED'}
 
-class compositor_pro_enable_nodes(bpy.types.Operator):
+class compositor_pro_enable_nodes(Operator):
     bl_idname = 'comp_pro.enable_nodes'
     bl_description = 'Enable compositor nodes'
     bl_category = 'Node'
@@ -319,13 +321,13 @@ class compositor_pro_enable_nodes(bpy.types.Operator):
         context.scene.use_nodes = True
         return {'FINISHED'}
 
-class compositor_pro_toggle_favorite(bpy.types.Operator):
+class compositor_pro_toggle_favorite(Operator):
     bl_idname = 'comp_pro.toggle_favorite'
     bl_description = 'Add a node to your favorites list'
     bl_category = 'Node'
     bl_label = 'Add Favorite'
 
-    choice: bpy.props.StringProperty()
+    choice: StringProperty()
 
     def invoke(self, context, event):
         node = eval(get_active_node_path(self.choice))
@@ -338,13 +340,13 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
             add_favorite(context, self.choice, node)
         return {'FINISHED'}
 
-class compositor_pro_open_info(bpy.types.Operator):
+class compositor_pro_open_info(Operator):
     bl_idname = 'comp_pro.open_info'
     bl_description = 'Open the documentation for the given node'
     bl_category = 'Node'
     bl_label = 'Open Info'
 
-    choice: bpy.props.StringProperty()
+    choice: StringProperty()
 
     def invoke(self, context, event):
         node = eval(get_active_node_path(self.choice))
@@ -359,7 +361,7 @@ classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_p
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.Scene.compositor_pro_props = bpy.props.PointerProperty(type=compositor_pro_props)
+    bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
 
 def unregister():
     for cls in reversed(classes):
