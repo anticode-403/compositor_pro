@@ -25,7 +25,9 @@ for key in preview_dirs.keys():
     prev_col.my_previews_dir = preview_dirs[key]
     prev_col.my_previews = ()
     preview_collections[key.removesuffix('_dir')] = prev_col
-preview_collections['fav'] = bpy.utils.previews.new()
+prev_col = bpy.utils.previews.new()
+prev_col.my_previews = []
+preview_collections['fav'] = prev_col
 
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
@@ -60,24 +62,9 @@ def previews_from_favorites(self, context):
     prev_col = preview_collections['fav']
     enum_items = []
 
-    if bpy.context is None:
+    if bpy.context is None or not has_favorites(context):
         return enum_items
 
-    if has_favorites(context):
-        favorite_string = context.preferences.addons[__package__].preferences.favorites
-        favs = re.findall(favorite_regexp, favorite_string)
-        for i, favorite in enumerate(favs):
-            cat, fnode = favorite.removesuffix(';').split(':')
-            fpath = join(cat, fnode)
-            filepath = join(preview_dir, '{}.png'.format(fpath))
-            image_name = fnode + '.png'
-            icon = prev_col.get(image_name)
-            if not icon:
-                thumb = prev_col.load(image_name, filepath, 'IMAGE')
-            else:
-                thumb = prev_col[image_name]
-            enum_items.append((fnode, fnode, '', thumb.icon_id, i))
-    prev_col.my_previews = enum_items
     return prev_col.my_previews
 
 def recursive_node_fixer (node_group, context):
@@ -114,6 +101,7 @@ def add_favorite(context, category, node):
     favs.append('{}:{};'.format(category, node))
     new_string = ''.join(favs)
     context.preferences.addons[__package__].preferences.favorites = new_string
+    process_favorites_previews(favs)
     return
 
 def rem_favorite(context, node):
@@ -125,6 +113,8 @@ def rem_favorite(context, node):
             favs.remove(favorite)
     new_string = ''.join(favs)
     context.preferences.addons[__package__].preferences.favorites = new_string
+    if len(favs) != 0:
+        process_favorites_previews(favs)
     return
 
 def check_favorite(context, node):
@@ -132,6 +122,7 @@ def check_favorite(context, node):
     favs = re.findall(favorite_regexp, favorite_string)
     if len(favs) == 0:
         return False
+    process_favorites_previews(favs)
     for favorite in favs:
         cat, fnode = favorite.removesuffix(';').split(':')
         if fnode == node:
@@ -146,6 +137,27 @@ def has_favorites(context):
         return False
     else:
         return True
+
+def process_favorites_previews(favs):
+    prev_col = preview_collections['fav']
+    items = []
+    for i, favorite in enumerate(favs):
+        cat, fnode = favorite.removesuffix(';').split(':')
+        filepath = join(preview_dir, join(cat, fnode) + '.png')
+        icon = prev_col.get(fnode)
+        if not icon:
+            thumb = prev_col.load(fnode, filepath, 'IMAGE')
+        else:
+            thumb = prev_col[fnode]
+        item = (fnode, fnode, '', thumb.icon_id, i)
+        if item not in prev_col.my_previews:
+            prev_col.my_previews.append(item)
+        items.append(item)
+    if len(items) != len(prev_col.my_previews):
+        for preview in prev_col.my_previews:
+            if preview not in items:
+                prev_col.my_previews.remove(preview)
+    prev_col.my_previews.sort(key=lambda e: e[0])
 
 def make_cat_list(self, context):
     cat_list = [
