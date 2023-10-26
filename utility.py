@@ -170,7 +170,6 @@ def has_favorites(context):
         return True
 
 def process_favorites_previews(favs):
-    print('Processing favorites again')
     prev_col = preview_collections['fav']
     items = []
     for i, favorite in enumerate(favs):
