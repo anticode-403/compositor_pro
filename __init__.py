@@ -57,7 +57,7 @@ class main_panel(Panel):
                 icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
                 depress=check_favorite(context, eval(get_active_node_path(props.categories)))
             ).choice = props.categories
-            if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
+            if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
                 panel.separator()
                 panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
             panel.separator()
