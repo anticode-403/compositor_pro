@@ -82,8 +82,10 @@ class compositor_pro_props(PropertyGroup):
     mixer_blend_type: EnumProperty(
         name='Mixer Blend Type',
         items=(
-            ('MIX', 'Mix', 'Mix two inputs together'),
-            ('ADD', 'Add', 'Add one input to another'),
+            ('MIX', 'Mix', 'Mix two outputs together'),
+            ('ADD', 'Add', 'Add one output to another'),
+            ('MULTIPLY', 'Multiply', 'Multiply two outputs together'),
+            ('COLOR', 'Color', 'Mix only Hue/Saturation between two outputs'),
         ),
         default='MIX'
     )
