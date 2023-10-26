@@ -6,6 +6,13 @@ bl_info = {
     "category" : "Compositing"
 }
 
+if 'bpy' in locals(): # This means that an older version of the addon was previously installed
+    import importlib
+    if 'utility' in locals():
+        importlib.reload(utility)
+    if 'preferences' in locals():
+        importlib.reload(preferences)
+
 import bpy
 from bpy.types import Operator, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
