@@ -70,9 +70,9 @@ class main_panel(Panel):
             panel.separator()
             colorgrade_panel = panel.box()
             colorgrade_panel.label(text="Color Grading")
-            create_active_colorspace = colorgrade_panel.row(align=True)
-            create_active_colorspace.prop(props, 'create_active_colorspace_sequencer', text='')
-            create_active_colorspace.operator('comp_pro.create_active_colorspace', text="Create Active Colorspace")
+            add_process_colorspace = colorgrade_panel.row(align=True)
+            add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
+            add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
@@ -94,7 +94,7 @@ class compositor_pro_props(PropertyGroup):
         min=0.0,
         default=0.1
     )
-    create_active_colorspace_sequencer: EnumProperty(
+    add_process_colorspace_sequencer: EnumProperty(
         name='Active Colorspace Sequencer',
         items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
         default='AgX Base Log'
@@ -252,8 +252,8 @@ class compositor_pro_add_mixer(Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_create_active_colorspace(Operator):
-    bl_idname='comp_pro.create_active_colorspace'
+class compositor_pro_add_process_colorspace(Operator):
+    bl_idname='comp_pro.add_process_colorspace'
     bl_description='Create an active colorspace node block'
     bl_category='Node'
     bl_label='Create Active Colorspace'
@@ -262,11 +262,11 @@ class compositor_pro_create_active_colorspace(Operator):
         props = context.scene.compositor_pro_props
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
-        to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to create_active_colorspace_sequencer
-        from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from create_active_colorspace_sequencer to Linear Rec.709
+        to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to add_process_colorspace_sequencer
+        from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from add_process_colorspace_sequencer to Linear Rec.709
         to_active.from_color_space = 'Linear Rec.709'
-        to_active.to_color_space = props.create_active_colorspace_sequencer
-        from_active.from_color_space = props.create_active_colorspace_sequencer
+        to_active.to_color_space = props.add_process_colorspace_sequencer
+        from_active.from_color_space = props.add_process_colorspace_sequencer
         from_active.to_color_space = 'Linear Rec.709'
         if nodes.active and nodes.active.select and len(nodes.active.inputs) != 0 and len(nodes.active.outputs) != 0:
             input_socket = nodes.active.inputs[0]
@@ -355,7 +355,7 @@ class compositor_pro_open_info(Operator):
 
 classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_create_active_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
+            compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
             compositor_pro_addon_preferences ]
 
 def register():
