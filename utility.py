@@ -28,9 +28,40 @@ for key in preview_dirs.keys():
 prev_col = bpy.utils.previews.new()
 prev_col.my_previews = []
 preview_collections['fav'] = prev_col
+all_col = bpy.utils.previews.new()
 
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
+
+def preview_all():
+    enum_items = []
+
+    if bpy.context is None:
+        return enum_items
+
+    directory = preview_dir
+
+    if directory and os.path.exists(directory):
+        image_paths = []
+        for cat_folder in os.listdir(directory):
+            if cat_folder.endswith('.png') or cat_folder == 'dev_tools':
+                continue
+            cfpath = join(directory, cat_folder)
+            for fn in os.listdir(cfpath):
+                if fn.lower().endswith('.png'):
+                    image_paths.append(join(cat_folder, fn))
+        for i, name in enumerate(image_paths):
+            filepath = os.path.join(directory, name)
+            node_name = name.split('\\')[1]
+            icon = all_col.get(node_name)
+            if not icon:
+                thumb = all_col.load(node_name, filepath, 'IMAGE')
+            else:
+                thumb = all_col[node_name]
+            enum_items.append((node_name.removesuffix('.png'), node_name.removesuffix('.png'), '', thumb.icon_id, i))
+    enum_items.sort(key=lambda e: e[0])
+    all_col.my_previews = enum_items
+    return all_col.my_previews
 
 def previews_from_directory_items(prev_col):
     enum_items = []
@@ -161,15 +192,19 @@ def process_favorites_previews(favs):
 
 def make_cat_list(self, context):
     cat_list = [
+        ('all', 'All', 'Every node in our addon'),
+        None,
         ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
         ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
         ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
         ('batches', 'Batches', 'Preset effect configurations'),
         ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
     ]
-    if context.preferences.addons[__package__].preferences.dev_tools:
-        cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'))
     if has_favorites(context):
         cat_list.append(None)
-        cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', 7))
+        cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
+    if context.preferences.addons[__package__].preferences.dev_tools:
+        if not has_favorites(context):
+            cat_list.append(None)
+        cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     return cat_list
