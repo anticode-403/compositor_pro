@@ -1,0 +1,55 @@
+import bpy
+from bpy.types import AddonPreferences
+from bpy.props import StringProperty, BoolProperty, FloatProperty
+import re
+from . utility import favorite_regexp
+
+class compositor_pro_addon_preferences(AddonPreferences):
+    def update_favorites(self, value):
+        favs = re.findall(favorite_regexp, value)
+        if len(favs) == 0:
+            self['favorites'] = ''
+            return
+        if ''.join(favs) == value:
+            self['favorites'] = value
+            return
+
+    def get_favorites(self):
+        if self['favorites'] is None:
+            self['favorites'] = ''
+        return self['favorites']
+
+    bl_idname = __package__
+
+    favorites: StringProperty(
+        name="Favorites",
+        description="A list of your favorite nodes",
+        default='',
+        set=update_favorites,
+        get=get_favorites
+    )
+    quick_add: BoolProperty(
+        name="Quick Add",
+        description="Add nodes instantly when selected",
+        default=False
+    )
+    dev_tools: BoolProperty(
+        name="Dev Tools",
+        description="A collection of nodes used for developing Compositor Pro",
+        default=False
+    )
+    thumbnail_size: FloatProperty(
+        name="Thumbnail Size",
+        description="The size of node thumbnails when in the selection menu",
+        default=8.0,
+        min=1,
+        max=100,
+        subtype='UNSIGNED'
+    )
+
+    def draw(self, context):
+        layout = self.layout
+        # layout.label(text='Compositor Pro Preferences')
+        layout.prop(self, 'quick_add')
+        layout.prop(self, 'dev_tools')
+        layout.prop(self, 'thumbnail_size')

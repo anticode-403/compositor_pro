@@ -2,12 +2,12 @@ import bpy
 import bpy.utils.previews # I don't understand why this fixes an issue, when it shouldn't do anything, but whatever
 import os
 from os.path import join, dirname, realpath
+import re
 
 preview_collections = {}
 main_dir = dirname(realpath(__file__))
 data_dir = join(main_dir,'data')
 blender_file = join(data_dir,'Compositor_Pro.blend')
-favorite_file = join(data_dir, 'favorites.txt')
 file_path_node_tree = join(blender_file,'NodeTree')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
@@ -18,6 +18,7 @@ preview_dirs = {
     'utilities_dir': join(preview_dir,'utilities'),
     'dev_dir': join(preview_dir,'dev_tools'),
 }
+favorite_regexp = r'[^:]+:[^:]+;'
 
 for key in preview_dirs.keys():
     prev_col = bpy.utils.previews.new()
@@ -62,19 +63,20 @@ def previews_from_favorites(self, context):
     if bpy.context is None:
         return enum_items
 
-    if has_favorites():
-        with open(favorite_file, 'r') as favorites:
-            for i, fpath in enumerate(favorites.readlines()):
-                fpath = fpath.strip('\n')
-                filepath = join(preview_dir, '{}.png'.format(fpath))
-                cat, node_name = fpath.split('\\')
-                image_name = node_name + '.png'
-                icon = prev_col.get(image_name)
-                if not icon:
-                    thumb = prev_col.load(image_name, filepath, 'IMAGE')
-                else:
-                    thumb = prev_col[image_name]
-                enum_items.append((node_name, node_name, '', thumb.icon_id, i))
+    if has_favorites(context):
+        favorite_string = context.preferences.addons[__package__].preferences.favorites
+        favs = re.findall(favorite_regexp, favorite_string)
+        for i, favorite in enumerate(favs):
+            cat, fnode = favorite.removesuffix(';').split(':')
+            fpath = join(cat, fnode)
+            filepath = join(preview_dir, '{}.png'.format(fpath))
+            image_name = fnode + '.png'
+            icon = prev_col.get(image_name)
+            if not icon:
+                thumb = prev_col.load(image_name, filepath, 'IMAGE')
+            else:
+                thumb = prev_col[image_name]
+            enum_items.append((fnode, fnode, '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     return prev_col.my_previews
 
@@ -106,41 +108,44 @@ def has_color_management ():
 def color_management_list_to_tuples(enum_item):
     return (enum_item.identifier, enum_item.name, enum_item.description)
 
-def add_favorite(category, node):
-    favorites = open(favorite_file, 'a')
-    favorites.write(join(category, node) + '\n')
+def add_favorite(context, category, node):
+    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    favs.append('{}:{};'.format(category, node))
+    new_string = ''.join(favs)
+    context.preferences.addons[__package__].preferences.favorites = new_string
     return
 
-def rem_favorite(node):
-    with open(favorite_file, 'r') as favorites:
-        with open(join(data_dir, 'temp.txt'), 'w') as temp:
-            for line in favorites.readlines():
-                if node in line:
-                    continue
-                temp.write(line)
-    os.replace(join(data_dir, 'temp.txt'), favorite_file)
+def rem_favorite(context, node):
+    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
+        if fnode == node:
+            favs.remove(favorite)
+    new_string = ''.join(favs)
+    context.preferences.addons[__package__].preferences.favorites = new_string
     return
 
-def check_favorite(node):
-    if not has_favorites():
+def check_favorite(context, node):
+    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    if len(favs) == 0:
         return False
-    favorites = open(favorite_file, 'r')
-    for fpath in favorites.readlines():
-        fpath = fpath.strip('\n')
-        if len(fpath) == 0:
-            continue
-        cat, fnode = fpath.split('\\')
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
         if fnode == node:
             return True
     return False
 
-def has_favorites():
-    if not os.path.exists(favorite_file):
+
+def has_favorites(context):
+    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    if len(favs) == 0:
         return False
-    favorites = open(favorite_file, 'r')
-    if len(favorites.readline()) == 0:
-        return False
-    return True
+    else:
+        return True
 
 def make_cat_list(self, context):
     cat_list = [
@@ -149,9 +154,10 @@ def make_cat_list(self, context):
         ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
         ('batches', 'Batches', 'Preset effect configurations'),
         ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
-        ('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'),
     ]
-    if has_favorites():
+    if context.preferences.addons[__package__].preferences.dev_tools:
+        cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes'))
+    if has_favorites(context):
         cat_list.append(None)
-        cat_list.append(('fav', 'Favorites', 'Your favorite nodes'))
+        cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', 7))
     return cat_list

@@ -9,6 +9,7 @@ bl_info = {
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from . utility import make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . preferences import compositor_pro_addon_preferences
 
 class main_panel(bpy.types.Panel):
     bl_label = "Compositor Pro"
@@ -26,7 +27,8 @@ class main_panel(bpy.types.Panel):
 
     def draw(self, context): # Create 3D View panel
         layout = self.layout
-        settings = context.scene.compositor_pro_props
+        props = context.scene.compositor_pro_props
+        prefs = context.preferences.addons[__package__].preferences
 
         panel = layout.row()
         if not context.space_data.tree_type == 'CompositorNodeTree':
@@ -42,18 +44,17 @@ class main_panel(bpy.types.Panel):
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
-            add_panel.prop(settings, 'categories', text='')
-            add_panel.template_icon_view(settings, 'comp_'+str(settings.categories), show_labels=True, scale_popup=8)
+            add_panel.prop(props, 'categories', text='')
+            add_panel.template_icon_view(props, 'comp_'+str(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
-            add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(settings.categories)))).choice = settings.categories
-            add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = settings.categories
+            add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
+            add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories
             add_button.operator(
                 'comp_pro.toggle_favorite',
                 text='',
-                icon='HEART' if not check_favorite(eval(get_active_node_path(settings.categories))) else 'FUND',
-                depress=check_favorite(eval(get_active_node_path(settings.categories)))
-            ).choice = settings.categories
-            add_button.prop(settings, 'quick_add', text='', icon='TIME')
+                icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
+                depress=check_favorite(context, eval(get_active_node_path(props.categories)))
+            ).choice = props.categories
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and compositor.nodes.active.node_tree.name == 'Grain+':
                 panel.separator()
                 panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
@@ -61,25 +62,20 @@ class main_panel(bpy.types.Panel):
             mixer_panel = panel.box()
             mixer_panel.label(text="Add Mix Node")
             mixer_options = mixer_panel.row(align=True)
-            mixer_options.prop(settings, 'mixer_blend_type', text='')
-            mixer_options.prop(settings, 'mixer_fac', text='')
+            mixer_options.prop(props, 'mixer_blend_type', text='')
+            mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
             panel.separator()
             colorgrade_panel = panel.box()
             colorgrade_panel.label(text="Color Grading")
             create_active_colorspace = colorgrade_panel.row(align=True)
-            create_active_colorspace.prop(settings, 'create_active_colorspace_sequencer', text='')
+            create_active_colorspace.prop(props, 'create_active_colorspace_sequencer', text='')
             create_active_colorspace.operator('comp_pro.create_active_colorspace', text="Create Active Colorspace")
 
 class compositor_pro_props(bpy.types.PropertyGroup):
     categories: bpy.props.EnumProperty(
         name='Category',
         items=make_cat_list
-    )
-    quick_add: bpy.props.BoolProperty(
-        name = 'Quick Add',
-        description = '',
-        default = False
     )
     mixer_blend_type: bpy.props.EnumProperty(
         name='Mixer Blend Type',
@@ -118,25 +114,25 @@ class compositor_pro_props(bpy.types.PropertyGroup):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
 
     def quick_add_mixed(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='mixed')
     def quick_add_unmixed(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='unmixed')
     def quick_add_color(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='color')
     def quick_add_batches(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
     def quick_add_utilities(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def quick_add_dev(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
     def quick_add_fav(self, context):
-        if context.scene.compositor_pro_props.quick_add:
+        if context.preferences.addons[__package__].preferences.quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
 
     comp_mixed: bpy.props.EnumProperty(
@@ -333,13 +329,13 @@ class compositor_pro_toggle_favorite(bpy.types.Operator):
 
     def invoke(self, context, event):
         node = eval(get_active_node_path(self.choice))
-        is_fav = check_favorite(node)
+        is_fav = check_favorite(context, node)
         if is_fav:
-            rem_favorite(node)
-            if not has_favorites():
+            rem_favorite(context, node)
+            if not has_favorites(context):
                 context.scene.compositor_pro_props.categories = 'mixed'
         else:
-            add_favorite(self.choice, node)
+            add_favorite(context, self.choice, node)
         return {'FINISHED'}
 
 class compositor_pro_open_info(bpy.types.Operator):
@@ -357,7 +353,8 @@ class compositor_pro_open_info(bpy.types.Operator):
 
 classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_create_active_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite ]
+            compositor_pro_create_active_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
+            compositor_pro_addon_preferences ]
 
 def register():
     for cls in classes:
