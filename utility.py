@@ -170,16 +170,18 @@ def has_favorites(context):
         return True
 
 def process_favorites_previews(favs):
+    print('Processing favorites again')
     prev_col = preview_collections['fav']
     items = []
     for i, favorite in enumerate(favs):
         cat, fnode = favorite.removesuffix(';').split(':')
-        filepath = join(preview_dir, join(cat, fnode) + '.png')
-        icon = all_col.get(fnode)
+        fnode_icon = fnode + '.png'
+        filepath = join(preview_dir, join(cat, fnode_icon))
+        icon = all_col.get(fnode_icon)
         if not icon:
-            thumb = all_col.load(fnode, filepath, 'IMAGE')
+            thumb = all_col.load(fnode_icon, filepath, 'IMAGE')
         else:
-            thumb = all_col[fnode]
+            thumb = all_col[fnode_icon]
         item = (fnode, fnode, '', thumb.icon_id, i)
         if item not in prev_col.my_previews:
             prev_col.my_previews.append(item)
