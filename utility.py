@@ -79,11 +79,11 @@ def previews_from_directory_items(prev_col):
 
         for i, name in enumerate(image_paths):
             filepath = os.path.join(directory, name)
-            icon = prev_col.get(name)
+            icon = all_col.get(name)
             if not icon:
-                thumb = prev_col.load(name, filepath, 'IMAGE')
+                thumb = all_col.load(name, filepath, 'IMAGE')
             else:
-                thumb = prev_col[name]
+                thumb = all_col[name]
             enum_items.append((name.removesuffix('.png'), name.removesuffix('.png'), '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
@@ -175,11 +175,11 @@ def process_favorites_previews(favs):
     for i, favorite in enumerate(favs):
         cat, fnode = favorite.removesuffix(';').split(':')
         filepath = join(preview_dir, join(cat, fnode) + '.png')
-        icon = prev_col.get(fnode)
+        icon = all_col.get(fnode)
         if not icon:
-            thumb = prev_col.load(fnode, filepath, 'IMAGE')
+            thumb = all_col.load(fnode, filepath, 'IMAGE')
         else:
-            thumb = prev_col[fnode]
+            thumb = all_col[fnode]
         item = (fnode, fnode, '', thumb.icon_id, i)
         if item not in prev_col.my_previews:
             prev_col.my_previews.append(item)
