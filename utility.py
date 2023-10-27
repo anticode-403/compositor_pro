@@ -217,3 +217,8 @@ def get_hotkey_entry_item(km, kmi_name, kmi_value):
             if km.keymap_items[i].properties.name == kmi_value:
                 return km_item
     return None
+
+def cleanup():
+    for preview_col in preview_collections.values():
+        bpy.utils.previews.remove(preview_col)
+    bpy.utils.previews.remove(all_col)

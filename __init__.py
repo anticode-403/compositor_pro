@@ -428,6 +428,7 @@ def unregister():
     wm = bpy.context.window_manager
     kmd[0].keymap_items.remove(kmd[1])
     wm.keyconfigs.addon.keymaps.remove(kmd[0])
+    utility.cleanup()
 
 
 if __name__ == "__main__":
