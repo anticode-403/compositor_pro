@@ -53,13 +53,19 @@ class compositor_pro_addon_preferences(AddonPreferences):
     def draw(self, context):
         layout = self.layout
         # layout.label(text='Compositor Pro Preferences')
-        layout.prop(self, 'quick_add')
-        layout.prop(self, 'dev_tools')
-        layout.prop(self, 'thumbnail_size')
+        box = layout.box()
+        box.label(text="Addon Panel")
+        box.prop(self, 'quick_add')
+        box.prop(self, 'thumbnail_size')
+        box = layout.box()
+        box.label(text="Keyboard Shortcuts")
         wm = bpy.context.window_manager
         kc = wm.keyconfigs.user
         km = kc.keymaps['Node Generic']
         kmi = get_hotkey_entry_item(km, 'wm.call_menu_pie', 'COMPPRO_MT_radial_menu')
         if kmi:
-            layout.context_pointer_set('keymap', km)
-            rna_keymap_ui.draw_kmi([], kc, km, kmi, layout, 0)
+            box.context_pointer_set('keymap', km)
+            rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        box = layout.box()
+        box.label(text="Other Options")
+        box.prop(self, 'dev_tools')

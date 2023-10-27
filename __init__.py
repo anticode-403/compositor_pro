@@ -1,9 +1,11 @@
 bl_info = {
     "name" : "Compositor Pro",
     "author" : "anticode-403, Nihal Rahman",
+    "location": "Blender Compositor",
     "blender" : (3, 6, 0),
     "version" : (0, 3, 0),
-    "category" : "Compositing"
+    "category" : "Compositing",
+    "doc_url": "https://anticode.me/",
 }
 
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
