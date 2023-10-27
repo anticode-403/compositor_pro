@@ -424,9 +424,7 @@ def unregister():
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.compositor_pro_props
     wm = bpy.context.window_manager
-    kc = wm.keyconfigs.user
-    km = kc.keymaps['Node Generic']
-    km.keymap_items.remove(kmd[1])
+    kmd[0].keymap_items.remove(kmd[1])
     wm.keyconfigs.addon.keymaps.remove(kmd[0])
 
 
