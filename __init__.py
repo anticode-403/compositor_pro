@@ -48,7 +48,7 @@ class main_panel(Panel):
             compositor = context.scene.node_tree
             panel = panel.column()
             if bpy.app.version < (4, 0, 0) and not has_color_management():
-                panel.label(text="Update to Blender to 4.0 or install CM+6.1")
+                panel.label(text="Please update to Blender 4.0")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
