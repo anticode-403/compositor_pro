@@ -99,6 +99,7 @@ def previews_from_favorites(self, context):
     return prev_col.my_previews
 
 def recursive_node_fixer (node_group, context):
+    node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
     for node in node_group.node_tree.nodes:
         if node.bl_idname == 'CompositorNodeGroup':
             if node.node_tree.name.endswith('.001'):
@@ -209,3 +210,10 @@ def make_cat_list(self, context):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     return cat_list
+
+def get_hotkey_entry_item(km, kmi_name, kmi_value):
+    for i, km_item in enumerate(km.keymap_items):
+        if km.keymap_items.keys()[i] == kmi_name:
+            if km.keymap_items[i].properties.name == kmi_value:
+                return km_item
+    return None

@@ -1,7 +1,9 @@
+import bpy
 from bpy.types import AddonPreferences
 from bpy.props import StringProperty, BoolProperty, FloatProperty
 import re
-from . utility import favorite_regexp
+import rna_keymap_ui
+from . utility import favorite_regexp, get_hotkey_entry_item
 
 class compositor_pro_addon_preferences(AddonPreferences):
     def update_favorites(self, value):
@@ -54,3 +56,10 @@ class compositor_pro_addon_preferences(AddonPreferences):
         layout.prop(self, 'quick_add')
         layout.prop(self, 'dev_tools')
         layout.prop(self, 'thumbnail_size')
+        wm = bpy.context.window_manager
+        kc = wm.keyconfigs.user
+        km = kc.keymaps['Node Generic']
+        kmi = get_hotkey_entry_item(km, 'wm.call_menu_pie', 'COMPPRO_MT_radial_menu')
+        if kmi:
+            layout.context_pointer_set('keymap', km)
+            rna_keymap_ui.draw_kmi([], kc, km, kmi, layout, 0)

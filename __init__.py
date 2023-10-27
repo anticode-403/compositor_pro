@@ -14,7 +14,7 @@ if 'bpy' in locals(): # This means that an older version of the addon was previo
         importlib.reload(preferences)
 
 import bpy
-from bpy.types import Operator, Panel, PropertyGroup
+from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
 from . utility import preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
@@ -80,6 +80,31 @@ class main_panel(Panel):
             add_process_colorspace = colorgrade_panel.row(align=True)
             add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
             add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
+
+class COMPPRO_MT_radial_menu(Menu):
+    bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
+    bl_options = {'REGISTER'}
+
+    def draw(self, context):
+        if not context.space_data.tree_type == 'CompositorNodeTree':
+            return
+        props = context.scene.compositor_pro_props
+        prefs = context.preferences.addons[__package__].preferences
+
+        pie = self.layout.menu_pie()
+        box = pie.column(align=True)
+        if has_favorites(context):
+            box.label(text="Favorite Nodes")
+            box.template_icon_view(props, 'comp_fav_rad', show_labels=True, scale_popup=prefs.thumbnail_size)
+        box = pie.column(align=True)
+        mixer_options = box.row(align=True)
+        mixer_options.prop(props, 'mixer_blend_type', text='')
+        mixer_options.prop(props, 'mixer_fac', text='')
+        box.operator('comp_pro.add_mixer', text="Add Mix Node")
+        box.separator()
+        add_process_colorspace = box.row(align=True)
+        add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
+        add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
@@ -182,6 +207,10 @@ class compositor_pro_props(PropertyGroup):
     comp_fav: EnumProperty(
         items=previews_from_favorites,
         update=quick_add_fav
+    )
+    comp_fav_rad: EnumProperty(
+        items=previews_from_favorites,
+        update=import_fav
     )
 
 class compositor_pro_add_node(Operator):
@@ -374,17 +403,32 @@ class compositor_pro_open_info(Operator):
 classes = [ compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
-            compositor_pro_addon_preferences ]
+            compositor_pro_addon_preferences, COMPPRO_MT_radial_menu ]
+
+kmd = [None, None]
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
+    wm = bpy.context.window_manager
+    km = wm.keyconfigs.addon.keymaps.new(name='Node Generic', space_type='NODE_EDITOR', region_type='WINDOW')
+    kmi = km.keymap_items.new('wm.call_menu_pie','V','PRESS')
+    kmi.properties.name = 'COMPPRO_MT_radial_menu'
+    kmi.active = True
+    kmd[0] = km
+    kmd[1] = kmi
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.compositor_pro_props
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.user
+    km = kc.keymaps['Node Generic']
+    km.keymap_items.remove(kmd[1])
+    wm.keyconfigs.addon.keymaps.remove(kmd[0])
+
 
 if __name__ == "__main__":
     register()
