@@ -151,6 +151,8 @@ class compositor_pro_props(PropertyGroup):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
     def import_fav(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
+    def import_fav_rad(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
     def quick_add_all(self, context):
         if context.preferences.addons[__package__].preferences.quick_add:
@@ -211,7 +213,7 @@ class compositor_pro_props(PropertyGroup):
     )
     comp_fav_rad: EnumProperty(
         items=previews_from_favorites,
-        update=import_fav
+        update=import_fav_rad
     )
 
 class compositor_pro_add_node(Operator):
