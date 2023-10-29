@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -85,7 +85,6 @@ class main_panel(Panel):
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
-    bl_options = {'REGISTER'}
 
     def draw(self, context):
         if not context.space_data.tree_type == 'CompositorNodeTree':
@@ -133,7 +132,7 @@ class compositor_pro_props(PropertyGroup):
     add_process_colorspace_sequencer: EnumProperty(
         name='Active Colorspace Sequencer',
         items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
-        default='AgX Base Log'
+        default=get_default_process_space()
     )
 
     def import_all(self, context):
