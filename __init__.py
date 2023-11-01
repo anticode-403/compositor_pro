@@ -5,7 +5,7 @@ bl_info = {
     "blender" : (3, 6, 0),
     "version" : (0, 3, 0),
     "category" : "Compositing",
-    "doc_url": "https://anticode.me/",
+    # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
 }
 
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
@@ -59,7 +59,7 @@ class main_panel(Panel):
             add_panel.template_icon_view(props, 'comp_'+str(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
-            add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories
+            # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
             add_button.operator(
                 'comp_pro.toggle_favorite',
                 text='',
@@ -430,7 +430,6 @@ def unregister():
     kmd[0].keymap_items.remove(kmd[1])
     wm.keyconfigs.addon.keymaps.remove(kmd[0])
     utility.cleanup()
-
 
 if __name__ == "__main__":
     register()
