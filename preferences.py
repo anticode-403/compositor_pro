@@ -44,7 +44,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
     thumbnail_size: FloatProperty(
         name="Thumbnail Size",
         description="The size of node thumbnails when in the selection menu",
-        default=8.0,
+        default=6.0,
         min=1,
         max=100,
         subtype='UNSIGNED'
