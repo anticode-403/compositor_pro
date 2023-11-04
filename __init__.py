@@ -3,7 +3,7 @@ bl_info = {
     "author" : "anticode-403, Nihal Rahman",
     "location": "Blender Compositor",
     "blender" : (3, 6, 0),
-    "version" : (0, 3, 0),
+    "version" : (0, 4, 0),
     "category" : "Compositing",
     # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
 }
