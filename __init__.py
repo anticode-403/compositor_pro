@@ -314,10 +314,16 @@ class compositor_pro_add_process_colorspace(Operator):
         nodes = node_tree.nodes
         to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to add_process_colorspace_sequencer
         from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from add_process_colorspace_sequencer to Linear Rec.709
-        to_active.from_color_space = 'Linear Rec.709'
+        if has_color_management() or bpy.app.version > (4, 0, 0):
+            to_active.from_color_space = 'Linear Rec.709'
+        else:
+            to_active.from_color_space = 'Linear'
         to_active.to_color_space = props.add_process_colorspace_sequencer
         from_active.from_color_space = props.add_process_colorspace_sequencer
-        from_active.to_color_space = 'Linear Rec.709'
+        if has_color_management() or bpy.app.version > (4, 0, 0):
+            from_active.to_color_space = 'Linear Rec.709'
+        else:
+            from_active.to_color_space = 'Linear'
         if nodes.active and nodes.active.select and len(nodes.active.inputs) != 0 and len(nodes.active.outputs) != 0:
             input_socket = nodes.active.inputs[0]
             for socket in nodes.active.inputs:

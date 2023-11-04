@@ -110,6 +110,16 @@ def recursive_node_fixer (node_group, context):
                     for var in fcurve.driver.variables:
                         var.targets[0].id = context.scene
                 continue
+            if node.node_tree.name == 'Global Colorspace Conversion':
+                if not has_color_management() and bpy.app.version < (4, 0, 0):
+                    for subnode in node.node_tree.nodes:
+                        if subnode.name == 'Convert Colorspace.001':
+                            subnode.to_color_space = 'Filmic Log'
+                            subnode.from_color_space = 'Linear'
+                        elif subnode.name == 'Convert Colorspace.002':
+                            subnode.to_color_space = 'Linear'
+                            subnode.from_color_space = 'Filmic Log'
+                continue
             recursive_node_fixer(node, context)
             continue
     return
