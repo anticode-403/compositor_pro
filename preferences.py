@@ -19,7 +19,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
         try:
             return self['favorites']
         except:
-            self['favorites'] = ''
+            self['favorites'] = self.favorites
             return self['favorites']
 
     bl_idname = __package__
