@@ -128,6 +128,9 @@ def recursive_node_fixer (node_group, context):
             continue
     return
 
+def get_preferences(context):
+    return context.preferences.addons[__package__].preferences
+
 def has_color_management ():
     color_management_dir = ''
     if len(bpy.utils.script_paths()) == 2:
@@ -142,29 +145,29 @@ def color_management_list_to_tuples(enum_item):
     return (enum_item.identifier, enum_item.name, enum_item.description)
 
 def add_favorite(context, category, node):
-    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favorite_string = get_preferences(context).favorites
     favs = re.findall(favorite_regexp, favorite_string)
     favs.append('{}:{};'.format(category, node))
     new_string = ''.join(favs)
-    context.preferences.addons[__package__].preferences.favorites = new_string
+    get_preferences(context).favorites = new_string
     process_favorites_previews(favs)
     return
 
 def rem_favorite(context, node):
-    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favorite_string = get_preferences(context).favorites
     favs = re.findall(favorite_regexp, favorite_string)
     for favorite in favs:
         cat, fnode = favorite.removesuffix(';').split(':')
         if fnode == node:
             favs.remove(favorite)
     new_string = ''.join(favs)
-    context.preferences.addons[__package__].preferences.favorites = new_string
+    get_preferences(context).favorites = new_string
     if len(favs) != 0:
         process_favorites_previews(favs)
     return
 
 def check_favorite(context, node):
-    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favorite_string = get_preferences(context).favorites
     favs = re.findall(favorite_regexp, favorite_string)
     if len(favs) == 0:
         return False
@@ -177,7 +180,7 @@ def check_favorite(context, node):
 
 
 def has_favorites(context):
-    favorite_string = context.preferences.addons[__package__].preferences.favorites
+    favorite_string = get_preferences(context).favorites
     favs = re.findall(favorite_regexp, favorite_string)
     if len(favs) == 0:
         return False
@@ -219,7 +222,7 @@ def make_cat_list(self, context):
     if has_favorites(context):
         cat_list.append(None)
         cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
-    if context.preferences.addons[__package__].preferences.dev_tools:
+    if get_preferences(context).dev_tools:
         if not has_favorites(context):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))

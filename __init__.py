@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -39,7 +39,7 @@ class main_panel(Panel):
     def draw(self, context): # Create 3D View panel
         layout = self.layout
         props = context.scene.compositor_pro_props
-        prefs = context.preferences.addons[__package__].preferences
+        prefs = get_preferences(context)
 
         panel = layout.row()
         if not context.space_data.tree_type == 'CompositorNodeTree':
@@ -90,7 +90,7 @@ class COMPPRO_MT_radial_menu(Menu):
         if not context.space_data.tree_type == 'CompositorNodeTree':
             return
         props = context.scene.compositor_pro_props
-        prefs = context.preferences.addons[__package__].preferences
+        prefs = get_preferences(context)
 
         pie = self.layout.menu_pie()
         box = pie.column(align=True)
@@ -155,28 +155,28 @@ class compositor_pro_props(PropertyGroup):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
     def quick_add_all(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='all')
     def quick_add_mixed(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='mixed')
     def quick_add_unmixed(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='unmixed')
     def quick_add_color(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='color')
     def quick_add_batches(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
     def quick_add_utilities(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
     def quick_add_dev(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
     def quick_add_fav(self, context):
-        if context.preferences.addons[__package__].preferences.quick_add:
+        if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
 
     comp_all: EnumProperty(
@@ -288,7 +288,7 @@ class compositor_pro_add_mixer(Operator):
         elif len(selected_nodes) == 2:
             primary_node = selected_nodes[0]
             secondary_node = selected_nodes[1]
-            if context.preferences.addons[__package__].preferences.invert_mix_options:
+            if get_preferences(context).invert_mix_options:
                 primary_node = selected_nodes[1]
                 secondary_node = selected_nodes[0]
             if nodes.active in selected_nodes:
