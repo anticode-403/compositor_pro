@@ -1,7 +1,7 @@
 import bpy
 import bpy.utils.previews # I don't understand why this fixes an issue, when it shouldn't do anything, but whatever
 import os
-from os.path import join, dirname, realpath
+from os.path import join, dirname, realpath, normpath
 import re
 
 preview_collections = {}
@@ -131,9 +131,9 @@ def recursive_node_fixer (node_group, context):
 def has_color_management ():
     color_management_dir = ''
     if len(bpy.utils.script_paths()) == 2:
-        color_management_dir = os.path.normpath(os.path.join(os.path.dirname(bpy.utils.script_paths()[0]), 'datafiles', 'colormanagement'))
+        color_management_dir = normpath(join(dirname(bpy.utils.script_paths()[0]), 'datafiles', 'colormanagement'))
     else:
-        color_management_dir = os.path.normpath(os.path.join(os.path.dirname(bpy.utils.script_paths()[1]), 'datafiles', 'colormanagement'))
+        color_management_dir = normpath(join(dirname(bpy.utils.script_paths()[1]), 'datafiles', 'colormanagement'))
     ocio_file_path = join(color_management_dir, 'config.ocio')
     ocio_file = open(ocio_file_path, 'r')
     return ocio_file.read(18) == '# Color Management'
