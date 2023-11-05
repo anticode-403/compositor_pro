@@ -110,7 +110,7 @@ def recursive_node_fixer (node_group, context):
             bpy.ops.scene.delete({'scene': bpy.data.scenes[driver_scene_name]})
         return
     if node_group.node_tree.name == 'Global Colorspace Conversion':
-        if not has_color_management() and bpy.app.version < (4, 0, 0):
+        if is_b3_cm():
             for subnode in node_group.node_tree.nodes:
                 if subnode.name == 'Convert Colorspace.001':
                     subnode.to_color_space = 'Filmic Log'
@@ -237,8 +237,11 @@ def cleanup():
         bpy.utils.previews.remove(preview_col)
     bpy.utils.previews.remove(all_col)
 
+def is_b3_cm():
+    return not (has_color_management() or bpy.app.version >= (4, 0, 0))
+
 def get_default_process_space():
-    if has_color_management() or bpy.app.version >= (4, 0, 0):
-        return 'AgX Log'
-    else:
+    if is_b3_cm():
         return 'Filmic Log'
+    else:
+        return 'AgX Log'

@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, has_color_management, preview_collections, file_path_node_tree
+from . utility import is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -49,7 +49,7 @@ class main_panel(Panel):
         else:
             compositor = context.scene.node_tree
             panel = panel.column()
-            if bpy.app.version < (4, 0, 0) and not has_color_management():
+            if is_b3_cm():
                 panel.label(text="Please update to Blender 4.0")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
@@ -317,16 +317,16 @@ class compositor_pro_add_process_colorspace(Operator):
         nodes = node_tree.nodes
         to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to add_process_colorspace_sequencer
         from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from add_process_colorspace_sequencer to Linear Rec.709
-        if has_color_management() or bpy.app.version > (4, 0, 0):
-            to_active.from_color_space = 'Linear Rec.709'
-        else:
+        if is_b3_cm():
             to_active.from_color_space = 'Linear'
+        else:
+            to_active.from_color_space = 'Linear Rec.709'
         to_active.to_color_space = props.add_process_colorspace_sequencer
         from_active.from_color_space = props.add_process_colorspace_sequencer
-        if has_color_management() or bpy.app.version > (4, 0, 0):
-            from_active.to_color_space = 'Linear Rec.709'
-        else:
+        if is_b3_cm():
             from_active.to_color_space = 'Linear'
+        else:
+            from_active.to_color_space = 'Linear Rec.709'
         if nodes.active and nodes.active.select and len(nodes.active.inputs) != 0 and len(nodes.active.outputs) != 0:
             input_socket = nodes.active.inputs[0]
             for socket in nodes.active.inputs:
