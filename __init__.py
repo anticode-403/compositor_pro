@@ -288,6 +288,9 @@ class compositor_pro_add_mixer(Operator):
         elif len(selected_nodes) == 2:
             primary_node = selected_nodes[0]
             secondary_node = selected_nodes[1]
+            if context.preferences.addons[__package__].preferences.invert_mix_options:
+                primary_node = selected_nodes[1]
+                secondary_node = selected_nodes[0]
             if nodes.active in selected_nodes:
                 selected_nodes.remove(nodes.active)
                 secondary_node = nodes.active

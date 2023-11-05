@@ -49,6 +49,11 @@ class compositor_pro_addon_preferences(AddonPreferences):
         max=100,
         subtype='UNSIGNED'
     )
+    invert_mix_options: BoolProperty(
+        name="Invert Mix Order",
+        description="Invert the order that Add Mix Node processes selections.",
+        default=False
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -56,6 +61,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box = layout.box()
         box.label(text="Addon Panel")
         box.prop(self, 'quick_add')
+        box.prop(self, 'invert_mix_options')
         box.prop(self, 'thumbnail_size')
         box = layout.box()
         box.label(text="Keyboard Shortcuts")
