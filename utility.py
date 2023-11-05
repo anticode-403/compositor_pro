@@ -100,25 +100,26 @@ def previews_from_favorites(self, context):
 
 def recursive_node_fixer (node_group, context):
     node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
+    if node_group.node_tree.name == 'Global Drivers':
+        for fcurve in node_group.node_tree.animation_data.drivers:
+            for var in fcurve.driver.variables:
+                var.targets[0].id = context.scene
+        bpy.ops.scene.delete({'scene': bpy.data.scenes['Driver Scene']})
+        return
+    if node_group.node_tree.name == 'Global Colorspace Conversion':
+        if not has_color_management() and bpy.app.version < (4, 0, 0):
+            for subnode in node_group.node_tree.nodes:
+                if subnode.name == 'Convert Colorspace.001':
+                    subnode.to_color_space = 'Filmic Log'
+                    subnode.from_color_space = 'Linear'
+                elif subnode.name == 'Convert Colorspace.002':
+                    subnode.to_color_space = 'Linear'
+                    subnode.from_color_space = 'Filmic Log'
+        return
     for node in node_group.node_tree.nodes:
         if node.bl_idname == 'CompositorNodeGroup':
             if node.node_tree.name.endswith('.001'):
                 node.node_tree = bpy.data.node_groups.get(node.node_tree.name[0:-4])
-                continue
-            if node.node_tree.name == 'Global Drivers':
-                for fcurve in node.node_tree.animation_data.drivers:
-                    for var in fcurve.driver.variables:
-                        var.targets[0].id = context.scene
-                continue
-            if node.node_tree.name == 'Global Colorspace Conversion':
-                if not has_color_management() and bpy.app.version < (4, 0, 0):
-                    for subnode in node.node_tree.nodes:
-                        if subnode.name == 'Convert Colorspace.001':
-                            subnode.to_color_space = 'Filmic Log'
-                            subnode.from_color_space = 'Linear'
-                        elif subnode.name == 'Convert Colorspace.002':
-                            subnode.to_color_space = 'Linear'
-                            subnode.from_color_space = 'Filmic Log'
                 continue
             recursive_node_fixer(node, context)
             continue
