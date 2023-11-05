@@ -293,8 +293,12 @@ class compositor_pro_add_mixer(Operator):
                 secondary_node = selected_nodes[0]
             if nodes.active in selected_nodes:
                 selected_nodes.remove(nodes.active)
-                secondary_node = nodes.active
-                primary_node = selected_nodes[0]
+                if get_preferences(context).invert_mix_options:
+                    primary_node = nodes.active
+                    secondary_node = selected_nodes[0]
+                else:
+                    primary_node = selected_nodes[0]
+                    secondary_node = nodes.active
             node_tree.links.new(eval(primary_node.outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
             node_tree.links.new(eval(secondary_node.outputs[0].path_from_id()), eval(mixer.inputs[2].path_from_id()))
         mixer.inputs[0].default_value = props.mixer_fac
