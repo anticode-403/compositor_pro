@@ -49,8 +49,8 @@ class main_panel(Panel):
         else:
             compositor = context.scene.node_tree
             panel = panel.column()
-            if is_b3_cm():
-                panel.label(text="Please update to Blender 4.0")
+            # if is_b3_cm():
+            #     panel.label(text="Please update to Blender 4.0")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
             add_panel = panel.box()
