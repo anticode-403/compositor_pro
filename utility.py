@@ -101,10 +101,13 @@ def previews_from_favorites(self, context):
 def recursive_node_fixer (node_group, context):
     node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
     if node_group.node_tree.name == 'Global Drivers':
+        driver_scene_name = 'Driver Scene'
         for fcurve in node_group.node_tree.animation_data.drivers:
             for var in fcurve.driver.variables:
+                driver_scene_name = var.targets[0].id.name
                 var.targets[0].id = context.scene
-        bpy.ops.scene.delete({'scene': bpy.data.scenes['Driver Scene']})
+        if 'Driver' in driver_scene_name and bpy.data.scenes[driver_scene_name] is not None:
+            bpy.ops.scene.delete({'scene': bpy.data.scenes[driver_scene_name]})
         return
     if node_group.node_tree.name == 'Global Colorspace Conversion':
         if not has_color_management() and bpy.app.version < (4, 0, 0):
