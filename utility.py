@@ -1,7 +1,7 @@
 import bpy
 import bpy.utils.previews # I don't understand why this fixes an issue, when it shouldn't do anything, but whatever
 import os
-from os.path import join, dirname, realpath, normpath
+from os.path import join, dirname, realpath, normpath, exists
 import re
 
 preview_collections = {}
@@ -41,7 +41,7 @@ def preview_all():
 
     directory = preview_dir
 
-    if directory and os.path.exists(directory):
+    if directory and exists(directory):
         image_paths = []
         for cat_folder in os.listdir(directory):
             if cat_folder.endswith('.png') or cat_folder == 'dev_tools':
@@ -51,7 +51,7 @@ def preview_all():
                 if fn.lower().endswith('.png'):
                     image_paths.append(join(cat_folder, fn))
         for i, name in enumerate(image_paths):
-            filepath = os.path.join(directory, name)
+            filepath = join(directory, name)
             node_name = name.split('\\')[1]
             icon = all_col.get(node_name)
             if not icon:
@@ -71,14 +71,14 @@ def previews_from_directory_items(prev_col):
 
     directory = prev_col.my_previews_dir
 
-    if directory and os.path.exists(directory):
+    if directory and exists(directory):
         image_paths = []
         for fn in os.listdir(directory):
             if fn.lower().endswith(".png"):
                 image_paths.append(fn)
 
         for i, name in enumerate(image_paths):
-            filepath = os.path.join(directory, name)
+            filepath = join(directory, name)
             icon = all_col.get(name)
             if not icon:
                 thumb = all_col.load(name, filepath, 'IMAGE')
