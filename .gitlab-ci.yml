@@ -1,0 +1,43 @@
+stages:
+    - archive
+    - publish
+
+archive:
+    stage: archive
+    rules:
+        - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\d+$/
+          variables:
+              RELEASE_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_TAG}
+        - if: $CI_COMMIT_REF_NAME == "working" && $CI_COMMIT_TITLE =~ /^[Ii]ncrement version$/
+          when: never
+        - if: $CI_COMMIT_REF_NAME == "working"
+          variables:
+              RELEASE_NAME: ${CI_PROJECT_NAME}
+    script:
+        - git archive --format=zip --prefix=${CI_PROJECT_NAME}/ -o ${RELEASE_NAME}.zip HEAD
+    artifacts:
+        paths:
+            - ${RELEASE_NAME}.zip
+
+release:
+    image: curlimages/curl:latest
+    stage: publish
+    rules:
+        - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\d+$/
+    dependencies:
+        - archive
+    needs:
+        - archive
+    variables:
+        GIT_STRATEGY: none
+    script:
+        - 'curl --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" --upload-file "${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.zip ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/${CI_COMMIT_TAG}/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.zip"'
+    release:
+        name: Compositor Pro ${CI_COMMIT_TAG}
+        tag_name: ${CI_COMMIT_TAG}
+        description: Release ${CI_PROJECT_NAME} version ${CI_COMMIT_TAG}
+        assets:
+            links:
+                - name: Zip Package
+                  url: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/${CI_COMMIT_TAG}/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.zip
+                  filepath: ${CI_COMMIT_TAG}/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.zip
