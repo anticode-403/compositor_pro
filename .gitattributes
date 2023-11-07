@@ -1,0 +1,4 @@
+/.gitlab-ci.yml export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+compositor_pro/ export-ignore
