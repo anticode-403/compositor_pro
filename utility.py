@@ -29,6 +29,7 @@ prev_col = bpy.utils.previews.new()
 prev_col.my_previews = []
 preview_collections['fav'] = prev_col
 all_col = bpy.utils.previews.new()
+search_col = bpy.utils.previews.new()
 
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
@@ -209,6 +210,24 @@ def process_favorites_previews(favs):
                 prev_col.my_previews.remove(preview)
     prev_col.my_previews.sort(key=lambda e: e[0])
 
+def update_search_cat(self, context):
+    search = self.search_string
+    if search == '':
+        self.categories = 'all'
+    else:
+        self.categories = 'search'
+        enum_items = []
+        for item in all_col.my_previews:
+            if search in item[0]:
+                enum_items.append(item)
+        search_col.my_previews = enum_items
+    return
+
+def previews_from_search(self, context):    
+    if search_col.my_previews is None:
+        update_search_cat(self, context)
+    return search_col.my_previews
+
 def make_cat_list(self, context):
     cat_list = [
         ('all', 'All', 'Every node in our addon'),
@@ -226,6 +245,9 @@ def make_cat_list(self, context):
         if not has_favorites(context):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
+    if self.search_string != '':
+        cat_list.append(None)
+        cat_list.append(('search', 'Search Results', 'The results of your search query', 'VIEWZOOM', len(cat_list)))
     return cat_list
 
 def get_hotkey_entry_item(km, kmi_name, kmi_value):
