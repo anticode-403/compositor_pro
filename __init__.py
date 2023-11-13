@@ -141,23 +141,7 @@ class compositor_pro_props(PropertyGroup):
         name='Search',
         update=update_search_cat
     )
-
-    def import_all(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='all')
-    def import_mixed(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='mixed')
-    def import_unmixed(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='unmixed')
-    def import_color(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='color')
-    def import_batches(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
-    def import_utilities(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
-    def import_dev(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
-    def import_fav(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
+    
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
