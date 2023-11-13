@@ -173,6 +173,9 @@ class compositor_pro_props(PropertyGroup):
     def quick_add_search(self, context):
         if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='search')
+    def quick_add_custom(self, context):
+        if get_preferences(context).quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='custom')
 
     comp_all: EnumProperty(
         items=preview_all(),
@@ -213,6 +216,10 @@ class compositor_pro_props(PropertyGroup):
     comp_search: EnumProperty(
         items=previews_from_search,
         update=quick_add_search
+    )
+    comp_custom: EnumProperty(
+        items=previews_from_custom,
+        update=quick_add_custom
     )
 
 class compositor_pro_add_node(Operator):

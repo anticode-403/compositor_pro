@@ -31,6 +31,8 @@ prev_col.my_previews = []
 preview_collections['fav'] = prev_col
 all_col = bpy.utils.previews.new()
 search_col = bpy.utils.previews.new()
+custom_col = bpy.utils.previews.new()
+custom_names = []
 
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
@@ -229,6 +231,40 @@ def previews_from_search(self, context):
         update_search_cat(self, context)
     return search_col.my_previews
 
+def previews_from_custom(self, context):
+    return custom_col.my_previews
+
+def process_custom_previews():
+    if not has_custom_nodes():
+        return
+    thumb = custom_col.get('custom')
+    if not thumb:
+        thumb = custom_col.load('custom', join(preview_dir, 'default.png'), 'IMAGE')
+    else:
+        thumb = custom_col['custom']
+    _custom_names = []
+    with bpy.data.libraries.load(custom_node_file) as (_, data):
+        for node_name in data.node_groups:
+            _custom_names.append(node_name)
+            if node_name not in custom_names:
+                item = (node_name, node_name, '', thumb.icon_id, len(custom_col.my_previews))
+                custom_col.my_previews.append(item)
+                custom_names.append(node_name)
+        if len (custom_names) != len(custom_col.my_previews):
+            for preview in custom_col.my_previews:
+                if preview not in _custom_names:
+                    custom_col.my_previews.remove(preview)
+    return      
+
+def has_custom_nodes():
+    if exists(custom_node_file):
+        with bpy.data.libraries.load(custom_node_file) as (_, data):
+            if len(data.node_groups) > 0:
+                if len(data.node_groups) != len(custom_col.my_previews):
+                    process_custom_previews()
+                return True
+    return False
+
 def make_cat_list(self, context):
     cat_list = [
         ('all', 'All', 'Every node in our addon'),
@@ -242,8 +278,12 @@ def make_cat_list(self, context):
     if has_favorites(context):
         cat_list.append(None)
         cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
-    if get_preferences(context).dev_tools:
+    if has_custom_nodes():
         if not has_favorites(context):
+            cat_list.append(None)
+        cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
+    if get_preferences(context).dev_tools:
+        if not (has_favorites(context) or has_custom_nodes()):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     if self.search_string != '':
