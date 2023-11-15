@@ -142,7 +142,7 @@ class compositor_pro_props(PropertyGroup):
         name='Search',
         update=update_search_cat
     )
-    
+
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
@@ -430,7 +430,11 @@ class compositor_pro_add_custom(Operator):
 
     def invoke(self, context, event):
         nodegroup = context.scene.node_tree.nodes.active
-        create_file(nodegroup)
+        customs = re.findall(customs_regexp, get_preferences(context).customs)
+        customs.append('{};'.format(nodegroup.node_tree.name))
+        get_preferences(context).customs = ''.join(customs)
+        write_custom_node(nodegroup)
+        process_custom_previews(context)
         return {'FINISHED'}
 
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
