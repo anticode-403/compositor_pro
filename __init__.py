@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import previews_from_search, update_search_cat, get_preferences, is_b3_cm, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import *
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -80,27 +80,6 @@ class main_panel(Panel):
             mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
             panel.separator()
-
-class COMPPRO_MT_radial_menu(Menu):
-    bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
-
-    def draw(self, context):
-        if not context.space_data.tree_type == 'CompositorNodeTree':
-            return
-        props = context.scene.compositor_pro_props
-        prefs = get_preferences(context)
-
-        pie = self.layout.menu_pie()
-        box = pie.column(align=True)
-        if has_favorites(context):
-            box.label(text="Favorite Nodes")
-            box.template_icon_view(props, 'comp_fav_rad', show_labels=True, scale_popup=prefs.thumbnail_size)
-        box = pie.column(align=True)
-        mixer_options = box.row(align=True)
-        mixer_options.prop(props, 'mixer_fac', text='Fac')
-        mixer_options.prop(props, 'mixer_blend_type', text='')
-        box.operator('comp_pro.add_mixer', text="Add Mix Node")
-        box.separator()
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
@@ -354,8 +333,7 @@ class compositor_pro_open_info(Operator):
 
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_open_info, compositor_pro_toggle_favorite,
-            COMPPRO_MT_radial_menu ]
+            compositor_pro_open_info, compositor_pro_toggle_favorite ]
 
 kmd = [None, None]
 
@@ -363,21 +341,11 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
-    wm = bpy.context.window_manager
-    km = wm.keyconfigs.addon.keymaps.new(name='Node Generic', space_type='NODE_EDITOR', region_type='WINDOW')
-    kmi = km.keymap_items.new('wm.call_menu_pie','V','PRESS')
-    kmi.properties.name = 'COMPPRO_MT_radial_menu'
-    kmi.active = True
-    kmd[0] = km
-    kmd[1] = kmi
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.compositor_pro_props
-    wm = bpy.context.window_manager
-    kmd[0].keymap_items.remove(kmd[1])
-    wm.keyconfigs.addon.keymaps.remove(kmd[0])
     utility.cleanup()
 
 if __name__ == "__main__":

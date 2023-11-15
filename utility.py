@@ -261,6 +261,3 @@ def cleanup():
     for preview_col in preview_collections.values():
         bpy.utils.previews.remove(preview_col)
     bpy.utils.previews.remove(all_col)
-
-def is_b3_cm():
-    return not (has_color_management() or bpy.app.version >= (4, 0, 0))
