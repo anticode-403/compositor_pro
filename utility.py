@@ -303,6 +303,7 @@ def cleanup():
         bpy.utils.previews.remove(preview_col)
     bpy.utils.previews.remove(all_col)
     bpy.utils.previews.remove(custom_col)
+    bpy.utils.previews.remove(search_col)
 
 def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
