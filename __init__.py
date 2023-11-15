@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import previews_from_search, update_search_cat, get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import previews_from_search, update_search_cat, get_preferences, is_b3_cm, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -80,11 +80,6 @@ class main_panel(Panel):
             mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
             panel.separator()
-            colorgrade_panel = panel.box()
-            colorgrade_panel.label(text="Color Grading")
-            add_process_colorspace = colorgrade_panel.row(align=True)
-            add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
-            add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
@@ -106,9 +101,6 @@ class COMPPRO_MT_radial_menu(Menu):
         mixer_options.prop(props, 'mixer_blend_type', text='')
         box.operator('comp_pro.add_mixer', text="Add Mix Node")
         box.separator()
-        add_process_colorspace = box.row(align=True)
-        add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
-        add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
@@ -131,11 +123,6 @@ class compositor_pro_props(PropertyGroup):
         max=1.0,
         min=0.0,
         default=0.1
-    )
-    add_process_colorspace_sequencer: EnumProperty(
-        name='Active Colorspace Sequencer',
-        items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
-        default=get_default_process_space()
     )
     search_string: StringProperty(
         name='Search',
@@ -307,55 +294,6 @@ class compositor_pro_add_mixer(Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_add_process_colorspace(Operator):
-    bl_idname='comp_pro.add_process_colorspace'
-    bl_description='Create an active colorspace node block'
-    bl_category='Node'
-    bl_label='Create Active Colorspace'
-
-    def invoke(self, context, event):
-        props = context.scene.compositor_pro_props
-        node_tree = context.scene.node_tree
-        nodes = node_tree.nodes
-        to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to add_process_colorspace_sequencer
-        from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from add_process_colorspace_sequencer to Linear Rec.709
-        if is_b3_cm():
-            to_active.from_color_space = 'Linear'
-        else:
-            to_active.from_color_space = 'Linear Rec.709'
-        to_active.to_color_space = props.add_process_colorspace_sequencer
-        from_active.from_color_space = props.add_process_colorspace_sequencer
-        if is_b3_cm():
-            from_active.to_color_space = 'Linear'
-        else:
-            from_active.to_color_space = 'Linear Rec.709'
-        if nodes.active and nodes.active.select and len(nodes.active.inputs) != 0 and len(nodes.active.outputs) != 0:
-            input_socket = nodes.active.inputs[0]
-            for socket in nodes.active.inputs:
-                if socket.type == 'RGBA':
-                    input_socket = socket
-                    break
-            for link in nodes.active.internal_links:
-                if link.to_socket == nodes.active.outputs[0]:
-                    input_socket = link.from_socket
-            for link in node_tree.links.values():
-                if link.to_node == nodes.active and link.to_socket.type == 'RGBA':
-                    node_tree.links.new(eval(link.from_socket.path_from_id()), eval(to_active.inputs[0].path_from_id()))
-                elif link.from_node == nodes.active and link.from_socket == nodes.active.outputs[0]:
-                    node_tree.links.new(eval(from_active.outputs[0].path_from_id()), eval(link.to_socket.path_from_id()))
-            node_tree.links.new(eval(from_active.inputs[0].path_from_id()), eval(nodes.active.outputs[0].path_from_id()))
-            node_tree.links.new(eval(input_socket.path_from_id()), eval(to_active.outputs[0].path_from_id()))
-            to_active.location = (nodes.active.location.x - to_active.width - 100, nodes.active.location.y)
-            from_active.location = (nodes.active.location.x + nodes.active.width + 100, nodes.active.location.y)
-        else:
-            node_tree.links.new(eval(to_active.outputs[0].path_from_id()), eval(from_active.inputs[0].path_from_id()))
-            to_active.location = (context.space_data.cursor_location.x - 150, context.space_data.cursor_location.y)
-            from_active.location = (context.space_data.cursor_location.x + 150, context.space_data.cursor_location.y)
-            for n in nodes:
-                n.select = n == to_active or n == from_active
-            bpy.ops.node.translate_attach('INVOKE_DEFAULT')
-        return {'FINISHED'}
-
 class compositor_pro_enable_optimizations(Operator):
     bl_idname = 'comp_pro.enable_optimizations'
     bl_description = 'Enable Blender compositor optimizations'
@@ -416,7 +354,7 @@ class compositor_pro_open_info(Operator):
 
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
+            compositor_pro_open_info, compositor_pro_toggle_favorite,
             COMPPRO_MT_radial_menu ]
 
 kmd = [None, None]

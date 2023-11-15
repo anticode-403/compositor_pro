@@ -264,9 +264,3 @@ def cleanup():
 
 def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
-
-def get_default_process_space():
-    if is_b3_cm():
-        return 'Filmic Log'
-    else:
-        return 'AgX Log'
