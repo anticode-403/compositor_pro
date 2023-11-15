@@ -68,9 +68,6 @@ class main_panel(Panel):
                 icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
                 depress=check_favorite(context, eval(get_active_node_path(props.categories)))
             ).choice = props.categories
-            if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
-                panel.separator()
-                panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
             panel.separator()
             mixer_panel = panel.box()
             mixer_panel.label(text="Add Mix Node")
@@ -207,26 +204,6 @@ class compositor_pro_add_node(Operator):
         for n in nodes:
             n.select = n == new_group
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
-        return {'FINISHED'}
-
-class compositor_pro_replace_grain(Operator, ImportHelper):
-    bl_idname = 'comp_pro.replace_grain'
-    bl_description = 'Replace the grain texture in the Grain+ NG'
-    bl_category = 'Node'
-    bl_label = 'Replace Grain Texture'
-
-    def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
-
-    def execute(self, context):
-        grain_node = context.scene.node_tree.nodes.active
-        grain_texture_node = None
-        for node in grain_node.node_tree.nodes:
-            if node.name == 'Grain':
-                grain_texture_node = node
-        new_texture = bpy.data.images.load(filepath = self.filepath)
-        grain_texture_node.image = new_texture
         return {'FINISHED'}
 
 class compositor_pro_add_mixer(Operator):
