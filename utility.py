@@ -282,7 +282,7 @@ def make_cat_list(self, context):
             cat_list.append(None)
         cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
     if get_preferences(context).dev_tools:
-        if not (has_favorites(context) or has_custom_nodes()):
+        if not (has_favorites(context) or has_custom_nodes(context)):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     if self.search_string != '':
