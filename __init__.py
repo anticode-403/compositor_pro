@@ -62,6 +62,8 @@ class main_panel(Panel):
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
             # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
+            if props.categories == 'custom':
+                add_button.operator('comp_pro.delete_custom', text='', icon='TRASH')
             add_button.operator(
                 'comp_pro.toggle_favorite',
                 text='',
@@ -237,7 +239,10 @@ class compositor_pro_add_node(Operator):
         nodes = node_tree.nodes
         #append
         if not bpy.data.node_groups.get(group_name):
-            bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+            if self.choice != 'custom':
+                bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+            else:
+                bpy.ops.wm.append(filename=group_name, directory=join(custom_node_file, 'NodeTree'))
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
@@ -437,8 +442,25 @@ class compositor_pro_add_custom(Operator):
         process_custom_previews(context)
         return {'FINISHED'}
 
+class compositor_pro_remove_custom(Operator):
+    bl_idname = 'comp_pro.delete_custom'
+    bl_description = 'Delete a custom Compositor Pro node'
+    bl_category = 'Node'
+    bl_label = 'Delete Custom Node'
+
+    def invoke(self, context, event):
+        customs = re.findall(customs_regexp, get_preferences(context).customs)
+        node_name = context.scene.compositor_pro_props.comp_custom
+        customs.remove('{};'.format(node_name))
+        get_preferences(context).customs = ''.join(customs)
+        delete_custom_node(node_name)
+        process_custom_previews(context)
+        if len(customs) == 0:
+            context.scene.compositor_pro_props.categories = 'all'
+        return {'FINISHED'}
+
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
-            compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
+            compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
             COMPPRO_MT_radial_menu ]
 
