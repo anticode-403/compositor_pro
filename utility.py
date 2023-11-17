@@ -108,7 +108,7 @@ def recursive_node_fixer (node_group, context):
                 driver_scene_name = var.targets[0].id.name
                 var.targets[0].id = context.scene
         if 'Driver' in driver_scene_name and bpy.data.scenes[driver_scene_name] is not None:
-            bpy.ops.scene.delete({'scene': bpy.data.scenes[driver_scene_name]})
+            bpy.data.scenes.remove(bpy.data.scenes[driver_scene_name])
         return
     if node_group.node_tree.name == 'Global Colorspace Conversion':
         if is_b3_cm():
