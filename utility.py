@@ -218,7 +218,7 @@ def update_search_cat(self, context):
         self.categories = 'search'
         enum_items = []
         for item in all_col.my_previews:
-            if search in item[0]:
+            if search.upper() in item[0].upper():
                 enum_items.append(item)
         search_col.my_previews = enum_items
     return
