@@ -183,6 +183,13 @@ def check_favorite(context, node):
             return True
     return False
 
+def get_fav_dir(context, node):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
+        if fnode == node:
+            return cat
 
 def has_favorites(context):
     favorite_string = get_preferences(context).favorites
