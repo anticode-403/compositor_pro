@@ -76,7 +76,6 @@ class main_panel(Panel):
             mixer_options.prop(props, 'mixer_blend_type', text='')
             mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
-            panel.separator()
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
