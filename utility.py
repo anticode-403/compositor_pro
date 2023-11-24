@@ -53,7 +53,7 @@ def preview_all():
                     image_paths.append(join(cat_folder, fn))
         for i, name in enumerate(image_paths):
             filepath = join(directory, name)
-            node_name = name.split('\\')[1]
+            node_name = os.path.basename(name)
             icon = all_col.get(node_name)
             if not icon:
                 thumb = all_col.load(node_name, filepath, 'IMAGE')
