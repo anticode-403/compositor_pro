@@ -119,6 +119,12 @@ def recursive_node_fixer (node_group, context):
                 elif subnode.name == 'Convert Colorspace.002':
                     subnode.to_color_space = 'Linear'
                     subnode.from_color_space = 'Filmic Log'
+        else:
+            for subnode in node_group.node_tree.nodes:
+                if subnode.name == 'Convert Colorspace.001':
+                    subnode.from_color_space = 'Linear Rec.709'
+                elif subnode.name == 'Convert Colorspace.002':
+                    subnode.to_color_space = 'Linear Rec.709'
         return
     for node in node_group.node_tree.nodes:
         if node.bl_idname == 'CompositorNodeGroup':

@@ -53,6 +53,7 @@ class main_panel(Panel):
             #     panel.label(text="Please update to Blender 4.0")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
+                panel.separator()
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
             add_panel.prop(props, 'search_string')
