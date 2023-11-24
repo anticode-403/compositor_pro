@@ -148,6 +148,9 @@ def has_color_management ():
     ocio_file = open(ocio_file_path, 'r')
     return ocio_file.read(18) == '# Color Management'
 
+def is_b3_cm():
+    return not (has_color_management() or bpy.app.version >= (4, 0, 0))
+
 def color_management_list_to_tuples(enum_item):
     return (enum_item.identifier, enum_item.name, enum_item.description)
 
