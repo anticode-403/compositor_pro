@@ -3,7 +3,7 @@ bl_info = {
     "author" : "anticode-403, Nihal Rahman",
     "location": "Blender Compositor",
     "blender" : (3, 6, 0),
-    "version" : (0, 4, 5),
+    "version" : (0, 5, 0),
     "category" : "Compositing",
     # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
 }
@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import previews_from_search, update_search_cat, get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -53,8 +53,11 @@ class main_panel(Panel):
             #     panel.label(text="Please update to Blender 4.0")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
+                panel.separator()
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
+            add_panel.prop(props, 'search_string')
+            add_panel = add_panel.column(align=True)
             add_panel.prop(props, 'categories', text='')
             add_panel.template_icon_view(props, 'comp_'+str(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
@@ -72,6 +75,7 @@ class main_panel(Panel):
             panel.separator()
             mixer_panel = panel.box()
             mixer_panel.label(text="Add Mix Node")
+            mixer_panel = mixer_panel.column(align=True)
             mixer_options = mixer_panel.row(align=True)
             mixer_options.prop(props, 'mixer_blend_type', text='')
             mixer_options.prop(props, 'mixer_fac', text='')
@@ -134,23 +138,11 @@ class compositor_pro_props(PropertyGroup):
         items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
         default=get_default_process_space()
     )
-
-    def import_all(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='all')
-    def import_mixed(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='mixed')
-    def import_unmixed(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='unmixed')
-    def import_color(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='color')
-    def import_batches(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='batches')
-    def import_utilities(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='utilities')
-    def import_dev(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='dev')
-    def import_fav(self, context):
-        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
+    search_string: StringProperty(
+        name='Search',
+        update=update_search_cat
+    )
+    
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
@@ -178,6 +170,9 @@ class compositor_pro_props(PropertyGroup):
     def quick_add_fav(self, context):
         if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav')
+    def quick_add_search(self, context):
+        if get_preferences(context).quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='search')
 
     comp_all: EnumProperty(
         items=preview_all(),
@@ -214,6 +209,10 @@ class compositor_pro_props(PropertyGroup):
     comp_fav_rad: EnumProperty(
         items=previews_from_favorites,
         update=import_fav_rad
+    )
+    comp_search: EnumProperty(
+        items=previews_from_search,
+        update=quick_add_search
     )
 
 class compositor_pro_add_node(Operator):

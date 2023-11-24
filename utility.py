@@ -29,6 +29,7 @@ prev_col = bpy.utils.previews.new()
 prev_col.my_previews = []
 preview_collections['fav'] = prev_col
 all_col = bpy.utils.previews.new()
+search_col = bpy.utils.previews.new()
 
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
@@ -107,7 +108,7 @@ def recursive_node_fixer (node_group, context):
                 driver_scene_name = var.targets[0].id.name
                 var.targets[0].id = context.scene
         if 'Driver' in driver_scene_name and bpy.data.scenes[driver_scene_name] is not None:
-            bpy.ops.scene.delete({'scene': bpy.data.scenes[driver_scene_name]})
+            bpy.data.scenes.remove(bpy.data.scenes[driver_scene_name])
         return
     if node_group.node_tree.name == 'Global Colorspace Conversion':
         if is_b3_cm():
@@ -118,6 +119,12 @@ def recursive_node_fixer (node_group, context):
                 elif subnode.name == 'Convert Colorspace.002':
                     subnode.to_color_space = 'Linear'
                     subnode.from_color_space = 'Filmic Log'
+        else:
+            for subnode in node_group.node_tree.nodes:
+                if subnode.name == 'Convert Colorspace.001':
+                    subnode.from_color_space = 'Linear Rec.709'
+                elif subnode.name == 'Convert Colorspace.002':
+                    subnode.to_color_space = 'Linear Rec.709'
         return
     for node in node_group.node_tree.nodes:
         if node.bl_idname == 'CompositorNodeGroup':
@@ -209,13 +216,31 @@ def process_favorites_previews(favs):
                 prev_col.my_previews.remove(preview)
     prev_col.my_previews.sort(key=lambda e: e[0])
 
+def update_search_cat(self, context):
+    search = self.search_string
+    if search == '':
+        self.categories = 'all'
+    else:
+        self.categories = 'search'
+        enum_items = []
+        for item in all_col.my_previews:
+            if search.upper() in item[0].upper():
+                enum_items.append(item)
+        search_col.my_previews = enum_items
+    return
+
+def previews_from_search(self, context):    
+    if search_col.my_previews is None:
+        update_search_cat(self, context)
+    return search_col.my_previews
+
 def make_cat_list(self, context):
     cat_list = [
         ('all', 'All', 'Every node in our addon'),
         None,
         ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
         ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
-        ('color', 'Color Grading', 'Compositing effects related to color grading operations'),
+        ('color', 'Color', 'Compositing effects related to color grading operations'),
         ('batches', 'Batches', 'Preset effect configurations'),
         ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
     ]
@@ -226,6 +251,9 @@ def make_cat_list(self, context):
         if not has_favorites(context):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
+    if self.search_string != '':
+        cat_list.append(None)
+        cat_list.append(('search', 'Search Results', 'The results of your search query', 'VIEWZOOM', len(cat_list)))
     return cat_list
 
 def get_hotkey_entry_item(km, kmi_name, kmi_value):
