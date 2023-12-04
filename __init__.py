@@ -142,7 +142,7 @@ class compositor_pro_props(PropertyGroup):
         name='Search',
         update=update_search_cat
     )
-    
+
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
@@ -226,6 +226,8 @@ class compositor_pro_add_node(Operator):
     def invoke(self, context, event):
         #find node
         group_name = eval(get_active_node_path(self.choice))
+        if group_name == '':
+            return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         #append
