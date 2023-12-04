@@ -429,7 +429,11 @@ kmd = [None, None]
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except:
+            if cls == compositor_pro_props or cls == compositor_pro_add_process_colorspace:
+                bpy.ops.error.message('INVOKE_DEFAULT', type='Error', message='Invalid config.ocio configuration. Please add Filmic Log for Blender 3.x or AgX Log for Blender 4.x to your config.ocio')
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
     wm = bpy.context.window_manager
     km = wm.keyconfigs.addon.keymaps.new(name='Node Generic', space_type='NODE_EDITOR', region_type='WINDOW')
