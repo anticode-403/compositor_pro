@@ -229,7 +229,7 @@ def update_search_cat(self, context):
         search_col.my_previews = enum_items
     return
 
-def previews_from_search(self, context):    
+def previews_from_search(self, context):
     if search_col.my_previews is None:
         update_search_cat(self, context)
     return search_col.my_previews
@@ -270,6 +270,13 @@ def cleanup():
 
 def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
+
+def is_broken_cm():
+    cm_tuple = tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
+    if is_b3_cm():
+        return not ('Filmic Log' in cm_tuple)
+    else:
+        return not ('AgX Log' in cm_tuple)
 
 def get_default_process_space():
     if is_b3_cm():

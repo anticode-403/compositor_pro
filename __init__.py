@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import previews_from_search, update_search_cat, get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import previews_from_search, update_search_cat, is_broken_cm, get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -142,7 +142,7 @@ class compositor_pro_props(PropertyGroup):
         name='Search',
         update=update_search_cat
     )
-    
+
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
 
@@ -226,6 +226,8 @@ class compositor_pro_add_node(Operator):
     def invoke(self, context, event):
         #find node
         group_name = eval(get_active_node_path(self.choice))
+        if group_name == '':
+            return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         #append
@@ -234,7 +236,10 @@ class compositor_pro_add_node(Operator):
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
-        new_group.node_tree.use_fake_user = False
+        try:
+            new_group.node_tree.use_fake_user = False
+        except:
+            self.report('ERROR', 'This node does not exist in data file.')
         #fix nodes
         recursive_node_fixer(new_group, context)
         #attatch to cursor
@@ -423,6 +428,8 @@ classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, composit
 kmd = [None, None]
 
 def register():
+    if is_broken_cm():
+        raise 'IF YOU SEE THIS ERROR, READ THIS: You have an invalid config.ocio configuration. Please add Filmic Log for Blender 3.x or AgX Log for Blender 4.x to your config.ocio'
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
