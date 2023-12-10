@@ -57,7 +57,7 @@ def preview_all():
                     image_paths.append(join(cat_folder, fn))
         for i, name in enumerate(image_paths):
             filepath = join(directory, name)
-            node_name = name.split('\\')[1]
+            node_name = os.path.basename(name)
             icon = all_col.get(node_name)
             if not icon:
                 thumb = all_col.load(node_name, filepath, 'IMAGE')
@@ -123,6 +123,12 @@ def recursive_node_fixer (node_group, context):
                 elif subnode.name == 'Convert Colorspace.002':
                     subnode.to_color_space = 'Linear'
                     subnode.from_color_space = 'Filmic Log'
+        else:
+            for subnode in node_group.node_tree.nodes:
+                if subnode.name == 'Convert Colorspace.001':
+                    subnode.from_color_space = 'Linear Rec.709'
+                elif subnode.name == 'Convert Colorspace.002':
+                    subnode.to_color_space = 'Linear Rec.709'
         return
     for node in node_group.node_tree.nodes:
         if node.bl_idname == 'CompositorNodeGroup':
@@ -314,6 +320,13 @@ def cleanup():
 
 def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
+
+def is_broken_cm():
+    cm_tuple = tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
+    if is_b3_cm():
+        return not ('Filmic Log' in cm_tuple)
+    else:
+        return not ('AgX Log' in cm_tuple)
 
 def get_default_process_space():
     if is_b3_cm():

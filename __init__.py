@@ -3,7 +3,7 @@ bl_info = {
     "author" : "anticode-403, Nihal Rahman",
     "location": "Blender Compositor",
     "blender" : (3, 6, 0),
-    "version" : (0, 4, 5),
+    "version" : (0, 5, 1),
     "category" : "Compositing",
     # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
 }
@@ -53,6 +53,7 @@ class main_panel(Panel):
             #     panel.label(text="Please update to Blender 4.0")
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
+                panel.separator()
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
             add_panel.prop(props, 'search_string')
@@ -235,6 +236,8 @@ class compositor_pro_add_node(Operator):
     def invoke(self, context, event):
         #find node
         group_name = eval(get_active_node_path(self.choice))
+        if group_name == '':
+            return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
         #append
@@ -246,7 +249,10 @@ class compositor_pro_add_node(Operator):
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
-        new_group.node_tree.use_fake_user = False
+        try:
+            new_group.node_tree.use_fake_user = False
+        except:
+            self.report('ERROR', 'This node does not exist in data file.')
         #fix nodes
         recursive_node_fixer(new_group, context)
         #attatch to cursor
@@ -467,6 +473,8 @@ classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, composit
 kmd = [None, None]
 
 def register():
+    if is_broken_cm():
+        raise 'IF YOU SEE THIS ERROR, READ THIS: You have an invalid config.ocio configuration. Please add Filmic Log for Blender 3.x or AgX Log for Blender 4.x to your config.ocio'
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
