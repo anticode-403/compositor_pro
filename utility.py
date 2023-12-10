@@ -155,6 +155,9 @@ def has_color_management ():
 def color_management_list_to_tuples(enum_item):
     return (enum_item.identifier, enum_item.name, enum_item.description)
 
+def color_management_list_to_strings(enum_item):
+    return enum_item.name
+
 def add_favorite(context, category, node):
     favorite_string = get_preferences(context).favorites
     favs = re.findall(favorite_regexp, favorite_string)
@@ -322,7 +325,7 @@ def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
 
 def is_broken_cm():
-    cm_tuple = tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
+    cm_tuple = tuple(map(color_management_list_to_strings, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
     if is_b3_cm():
         return not ('Filmic Log' in cm_tuple)
     else:
