@@ -459,7 +459,6 @@ class compositor_pro_remove_custom(Operator):
         node_name = context.scene.compositor_pro_props.comp_custom
         customs.remove('{};'.format(node_name))
         get_preferences(context).customs = ''.join(customs)
-        delete_custom_node(node_name)
         process_custom_previews(context)
         if len(customs) == 0:
             context.scene.compositor_pro_props.categories = 'all'
