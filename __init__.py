@@ -242,7 +242,7 @@ class compositor_pro_add_node(Operator):
         nodes = node_tree.nodes
         #append
         if not bpy.data.node_groups.get(group_name):
-            if self.choice != 'custom' and (self.choice != 'fav' and get_fav_dir(context, group_name) != 'custom'):
+            if self.choice != 'custom' and (self.choice == 'fav' and get_fav_dir(context, group_name) != 'custom'):
                 bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
             else:
                 bpy.ops.wm.append(filename=group_name, directory=join(custom_node_file, 'NodeTree'))
