@@ -54,6 +54,7 @@ class main_panel(Panel):
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
                 panel.separator()
+
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
             add_panel.prop(props, 'search_string')
@@ -74,6 +75,7 @@ class main_panel(Panel):
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
                 panel.separator()
                 panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
+
             panel.separator()
             mixer_panel = panel.box()
             mixer_panel.label(text="Add Mix Node")
@@ -82,13 +84,29 @@ class main_panel(Panel):
             mixer_options.prop(props, 'mixer_blend_type', text='')
             mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
+
             panel.separator()
             colorgrade_panel = panel.box()
             colorgrade_panel.label(text="Color Grading")
             add_process_colorspace = colorgrade_panel.row(align=True)
             add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
             add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
-            panel.operator('comp_pro.add_custom')
+
+            panel.separator()
+            custom_nodes = panel.box()
+            custom_nodes.label(text="Custom Node Management")
+            custom_nodes.operator('comp_pro.add_custom')
+
+            panel.separator()
+            credit_box = panel.box()
+            version_row = credit_box.row()
+            version_row.alignment = 'CENTER'
+            version_row.label(text="Compositor Pro {}.{}.{}".format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2]))
+            credits_row = credit_box.row()
+            credits_row.alignment = 'CENTER'
+            credits_row.scale_y = 0.25
+            credits_row.enabled = False
+            credits_row.label(text="anticode-403 and Nihal Rahman")
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
