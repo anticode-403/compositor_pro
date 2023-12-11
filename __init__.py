@@ -245,7 +245,7 @@ class compositor_pro_add_node(Operator):
             if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
                 bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
             else:
-                bpy.ops.wm.append(filename=group_name, directory=join(custom_node_file, 'NodeTree'))
+                bpy.ops.wm.append(filename=group_name, directory=join(get_custom_path(group_name), 'NodeTree'))
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
@@ -459,7 +459,7 @@ class compositor_pro_remove_custom(Operator):
         node_name = context.scene.compositor_pro_props.comp_custom
         customs.remove('{};'.format(node_name))
         get_preferences(context).customs = ''.join(customs)
-        refresh_custom_node_file(context)
+        delete_custom_node(node_name)
         process_custom_previews(context)
         if len(customs) == 0:
             context.scene.compositor_pro_props.categories = 'all'
