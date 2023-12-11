@@ -131,6 +131,8 @@ class COMPPRO_MT_radial_menu(Menu):
         add_process_colorspace = box.row(align=True)
         add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
         add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
+        box = pie.column(align=True)
+        box.label(text="anticode-403 and Nihal Rahman")
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
