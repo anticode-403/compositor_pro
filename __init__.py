@@ -119,9 +119,20 @@ class COMPPRO_MT_radial_menu(Menu):
 
         pie = self.layout.menu_pie()
         box = pie.column(align=True)
-        if has_favorites(context):
-            box.label(text="Favorite Nodes")
-            box.template_icon_view(props, 'comp_fav_rad', show_labels=True, scale_popup=prefs.thumbnail_size)
+        if has_favorites(context) or has_custom_nodes(context):
+            category = 'fav_rad'
+            if has_favorites(context) and has_custom_nodes(context):
+                box.label(text="Instant Node")
+                categories = box.row(align=True)
+                categories.prop(props, 'n_categories', expand=True)
+                category = props.n_categories
+            elif has_favorites(context):
+                box.label(text="Favorite Nodes")
+                category = 'fav_rad'
+            else:
+                box.label(text="Custom Nodes")
+                category = 'custom_rad'
+            box.template_icon_view(props, 'comp_{}'.format(category), show_labels=True, scale_popup=prefs.thumbnail_size)
         box = pie.column(align=True)
         mixer_options = box.row(align=True)
         mixer_options.prop(props, 'mixer_fac', text='Fac')
@@ -138,6 +149,14 @@ class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
         name='Category',
         items=make_cat_list
+    )
+    n_categories: EnumProperty(
+        name='Category',
+        items=(
+            ('fav_rad', 'Favorites', 'Your favorite nodes'),
+            ('custom_rad', 'Custom Nodes', 'Nodes you made yourself')
+        ),
+        default='fav_rad'
     )
     mixer_blend_type: EnumProperty(
         name='Mixer Blend Type',
@@ -168,6 +187,9 @@ class compositor_pro_props(PropertyGroup):
 
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
+
+    def import_custom_rad(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='custom_rad')
 
     def quick_add_all(self, context):
         if get_preferences(context).quick_add:
@@ -243,6 +265,10 @@ class compositor_pro_props(PropertyGroup):
     comp_custom: EnumProperty(
         items=previews_from_custom,
         update=quick_add_custom
+    )
+    comp_custom_rad: EnumProperty(
+        items=previews_from_custom,
+        update=import_custom_rad
     )
 
 class compositor_pro_add_node(Operator):
