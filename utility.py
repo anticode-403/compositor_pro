@@ -9,6 +9,7 @@ main_dir = dirname(realpath(__file__))
 data_dir = join(main_dir,'data')
 blender_file = join(data_dir,'Compositor_Pro.blend')
 custom_node_file = join(data_dir, 'Custom Node Groups.blend')
+temp_custom_file = join(data_dir, 'TEMP Custom.blend')
 file_path_node_tree = join(blender_file,'NodeTree')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
@@ -341,6 +342,14 @@ def write_custom_node(nodegroup):
     bpy.data.libraries.write(custom_node_file, {nodegroup.node_tree}, fake_user=True)
     return
 
-def delete_custom_node(node_name):
-    with bpy.data.libraries.load(custom_node_file) as (data, _):
-        data.node_groups.remove(node_name)
+def refresh_custom_node_file(context):
+    if not has_custom_nodes(context):
+        os.remove(custom_node_file)
+        return
+    customs = re.findall(customs_regexp, get_preferences(context).customs)
+    with bpy.data.libraries.load(custom_node_file) as (data, load):
+        load.node_groups = [name for name in data.node_groups if '{};'.format(name) in customs]
+    node_groups = load.node_groups
+    bpy.data.libraries.write(temp_custom_file, set(node_groups), fake_user=True)
+    os.remove(custom_node_file)
+    os.rename(temp_custom_file, custom_node_file)
