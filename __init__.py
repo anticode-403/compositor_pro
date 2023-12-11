@@ -295,10 +295,10 @@ class compositor_pro_add_node(Operator):
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
-        try:
+        if bpy.data.node_groups.get(group_name) is not None:
             new_group.node_tree.use_fake_user = False
-        except:
-            self.report('ERROR', 'This node does not exist in data file.')
+        else:
+            self.report({'ERROR'}, 'This node does not exist in data file.')
         #fix nodes
         recursive_node_fixer(new_group, context)
         #attatch to cursor
