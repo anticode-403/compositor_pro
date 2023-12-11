@@ -60,7 +60,7 @@ class main_panel(Panel):
             add_panel.prop(props, 'search_string')
             add_panel = add_panel.column(align=True)
             add_panel.prop(props, 'categories', text='')
-            add_panel.template_icon_view(props, 'comp_'+str(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
+            add_panel.template_icon_view(props, 'comp_{}'.format(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
             # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
