@@ -308,11 +308,9 @@ class compositor_pro_open_info(Operator):
         print(node)
         return {'FINISHED'}
 
-classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
+classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
             compositor_pro_open_info, compositor_pro_toggle_favorite ]
-
-kmd = [None, None]
 
 def register():
     for cls in classes:
