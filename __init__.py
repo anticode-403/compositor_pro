@@ -302,6 +302,7 @@ class compositor_pro_add_node(Operator):
         #fix nodes
         recursive_node_fixer(new_group, context)
         #attatch to cursor
+        new_group.width = get_preferences(context).node_width
         new_group.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == new_group

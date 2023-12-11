@@ -59,6 +59,14 @@ class compositor_pro_addon_preferences(AddonPreferences):
         max=100,
         subtype='UNSIGNED'
     )
+    node_width: FloatProperty(
+        name="Node Width",
+        description="The width of nodes when they are imported",
+        default=140,
+        min=140,
+        max=500,
+        subtype='UNSIGNED'
+    )
     invert_mix_options: BoolProperty(
         name="Invert Mix Order",
         description="Invert the order that Add Mix Node processes selections.",
@@ -73,6 +81,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box.prop(self, 'quick_add')
         box.prop(self, 'invert_mix_options')
         box.prop(self, 'thumbnail_size')
+        box.prop(self, 'node_width')
         box = layout.box()
         box.label(text="Keyboard Shortcuts")
         wm = bpy.context.window_manager
