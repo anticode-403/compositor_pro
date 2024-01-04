@@ -102,6 +102,7 @@ class main_panel(Panel):
             custom_nodes = panel.box()
             custom_nodes.label(text="Custom Node Management")
             custom_nodes.operator('comp_pro.add_custom', enabled=is_custom_node(compositor.nodes.active))
+            custom_nodes.operator('comp_pro.rebuild_customs')
 
             panel.separator()
             credit_box = panel.box()
@@ -504,6 +505,16 @@ class compositor_pro_add_custom(Operator):
         get_preferences(context).customs = ''.join(customs)
         write_custom_node(nodegroup)
         process_custom_previews(context)
+        return {'FINISHED'}
+
+class compositor_pro_rebuild_customs(Operator):
+    bl_idname = 'comp_pro.rebuild_customs'
+    bl_description = 'Deep refresh your custom nodes, in case some are missing or sticking behind when they shouldn\'t.'
+    bl_category = 'Node'
+    bl_label = 'Refresh Custom Nodes'
+
+    def invoke(self, context, event):
+        deep_process_custom_previews(context)
         return {'FINISHED'}
 
 class compositor_pro_remove_custom(Operator):

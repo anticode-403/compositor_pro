@@ -284,6 +284,15 @@ def has_custom_nodes(context):
         return True
     return False
 
+def deep_process_custom_previews(context):
+    customs = []
+    if exists(custom_node_folder):
+        for node in os.listdir(custom_node_folder):
+            if node.endswith('.blend'): # processes out junk data and blend1 files.
+                customs.append('{};'.format(node.removesuffix('.blend')))
+    get_preferences(context).customs = ''.join(customs)
+    process_custom_previews(context)
+
 def make_cat_list(self, context):
     cat_list = [
         ('all', 'All', 'Every node in our addon'),
