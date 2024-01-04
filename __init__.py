@@ -51,6 +51,7 @@ class main_panel(Panel):
             panel = panel.column()
             # if is_b3_cm():
             #     panel.label(text="Please update to Blender 4.0")
+            
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 optimization_menu = panel.box()
                 optimization_menu.label(text="Optimization Menu")
@@ -74,6 +75,7 @@ class main_panel(Panel):
                 icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
                 depress=check_favorite(context, eval(get_active_node_path(props.categories)))
             ).choice = props.categories
+
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
                 panel.separator()
                 context_menu = panel.box()
