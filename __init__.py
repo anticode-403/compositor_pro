@@ -110,7 +110,12 @@ class main_panel(Panel):
             credits_row.alignment = 'CENTER'
             credits_row.scale_y = 0.25
             credits_row.enabled = False
-            credits_row.label(text="anticode-403 and Nihal Rahman")
+            credits_row.label(text="anticode-403")
+            nihal_row = credit_box.row()
+            nihal_row.alignment = 'CENTER'
+            nihal_row.scale_y = 0.25
+            nihal_row.enabled = False
+            nihal_row.label(text="Nihal Rahman")
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
