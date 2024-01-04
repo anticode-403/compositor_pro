@@ -101,6 +101,7 @@ class main_panel(Panel):
             panel.separator()
             custom_nodes = panel.box()
             custom_nodes.label(text="Custom Node Management")
+            custom_nodes = custom_nodes.column(align=True)
             add_custom = custom_nodes.row()
             add_custom.operator('comp_pro.add_custom')
             add_custom.enabled = is_custom_node(compositor.nodes.active)
