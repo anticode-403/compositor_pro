@@ -294,16 +294,16 @@ def make_cat_list(self, context):
         ('batches', 'Batches', 'Preset effect configurations'),
         ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
     ]
-    if has_favorites(context):
+    has_fav = has_favorites(context)
+    has_custom = has_custom_nodes(context)
+    dev_tools = get_preferences(context).dev_tools
+    if has_fav or has_custom or dev_tools:
         cat_list.append(None)
+    if has_fav:
         cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
-    if has_custom_nodes(context):
-        if not has_favorites(context):
-            cat_list.append(None)
+    if has_custom:
         cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
-    if get_preferences(context).dev_tools:
-        if not (has_favorites(context) or has_custom_nodes(context)):
-            cat_list.append(None)
+    if dev_tools:
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     if self.search_string != '':
         cat_list.append(None)
