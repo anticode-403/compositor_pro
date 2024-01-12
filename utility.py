@@ -256,9 +256,9 @@ def previews_from_custom(self, context):
         process_custom_previews(context)
     return custom_col.my_previews
 
-def process_custom_previews(context):
-    # if not has_custom_nodes(context):
-    #     return
+def process_custom_previews(context, clean = False):
+    if clean:
+        custom_col.my_previews = []
     thumb = custom_col.get('custom')
     if not thumb:
         thumb = custom_col.load('custom', join(preview_dir, 'default.png'), 'IMAGE')
@@ -291,7 +291,7 @@ def deep_process_custom_previews(context):
             if node.endswith('.blend'): # processes out junk data and blend1 files.
                 customs.append('{};'.format(node.removesuffix('.blend')))
     get_preferences(context).customs = ''.join(customs)
-    process_custom_previews(context)
+    process_custom_previews(context, True)
 
 def make_cat_list(self, context):
     cat_list = [
