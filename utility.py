@@ -145,6 +145,12 @@ def has_color_management ():
         bl_dir = dirname(bpy.app.binary_path)
         ocio_dir = join(bl_dir, '{}.{}'.format(bpy.app.version[0], bpy.app.version[1]), 'datafiles', 'colormanagement')
         ocio_path = join(ocio_dir, 'config.ocio')
+    if not os.path.isfile(ocio_path):
+        if len(bpy.utils.script_paths()) == 2:
+            color_management_dir = normpath(join(dirname(bpy.utils.script_paths()[0]), 'datafiles', 'colormanagement'))
+        else:
+            color_management_dir = normpath(join(dirname(bpy.utils.script_paths()[1]), 'datafiles', 'colormanagement'))
+        ocio_path = join(color_management_dir, 'config.ocio')
     ocio_file = open(ocio_path, 'r')
     return ocio_file.read(18) == '# Color Management'
 
