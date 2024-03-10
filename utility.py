@@ -247,10 +247,10 @@ def make_cat_list(self, context):
     cat_list = [
         ('all', 'All', 'Every node in our addon'),
         None,
-        ('mixed', 'Mixed Effects', 'Compositing effects that does not require any additional mixing. These effects will mix in the effect by default from the output'),
-        ('unmixed', 'Unmixed Effects', 'Compositing effects that only output the raw effect. These effects require an additional mix node to be mixed with your source'),
-        ('color', 'Color', 'Compositing effects related to color grading operations'),
-        ('batches', 'Batches', 'Preset effect configurations'),
+        ('mixed', 'Mixed Effects', 'Nodes that have the effects mixed in with the output of the node, similar to how you\'d expect a built-in node to behave'),
+        ('unmixed', 'Unmixed Effects', 'Nodes that only output the effect without mixing in the source image. These effects can be mixed with any mixing method'),
+        ('color', 'Color', 'Nodes related to color grading operations'),
+        ('batches', 'Batches', 'Nodes that are preset groups of effects that are compiled together'),
         ('utilities', 'Utilities', 'Nodes that offer different utility functions, but not are not effects themselves'),
     ]
     if has_favorites(context):
