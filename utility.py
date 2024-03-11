@@ -3,6 +3,7 @@ import bpy.utils.previews # I don't understand why this fixes an issue, when it 
 import os
 from os.path import join, dirname, realpath, normpath, exists
 import re
+import json
 
 preview_collections = {}
 main_dir = dirname(realpath(__file__))
@@ -16,7 +17,7 @@ preview_dirs = {
     'color_dir': join(preview_dir,'color'),
     'batches_dir': join(preview_dir,'batches'),
     'utilities_dir': join(preview_dir,'utilities'),
-    'dev_dir': join(preview_dir,'dev_tools'),
+    'dev_dir': join(preview_dir,'dev'),
 }
 favorite_regexp = r'[^:]+:[^:]+;'
 
@@ -31,10 +32,24 @@ preview_collections['fav'] = prev_col
 all_col = bpy.utils.previews.new()
 search_col = bpy.utils.previews.new()
 
+def get_node_data():
+    raw = open(join(data_dir, 'nodes.json'))
+    data = json.load(raw)
+    raw.close()
+    return data
+
+def get_data_from_node(category, node_name):
+    data = get_node_data()
+    for node in data[category]:
+        if node['name'] == node_name:
+            return node
+
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
 
 def preview_all():
+    data = get_node_data()
+
     enum_items = []
 
     if bpy.context is None:
@@ -42,29 +57,54 @@ def preview_all():
 
     directory = preview_dir
 
-    if directory and exists(directory):
-        image_paths = []
-        for cat_folder in os.listdir(directory):
-            if cat_folder.endswith('.png') or cat_folder == 'dev_tools':
-                continue
-            cfpath = join(directory, cat_folder)
-            for fn in os.listdir(cfpath):
-                if fn.lower().endswith('.png'):
-                    image_paths.append(join(cat_folder, fn))
-        for i, name in enumerate(image_paths):
-            filepath = join(directory, name)
-            node_name = os.path.basename(name)
-            icon = all_col.get(node_name)
-            if not icon:
-                thumb = all_col.load(node_name, filepath, 'IMAGE')
+    for cat in data.keys():
+        if cat == 'dev':
+            continue
+        for node in data[cat]:
+            sub_location = ''
+            is_default = False
+            if node['override_thumb'] and node['thumb'] != 'default.png':
+                cat, thumb = node['thumb'].split('/')
+                sub_location = join(cat, thumb)
+            elif node['override_thumb'] and node['thumb'] != 'default.png':
+                is_default = True
             else:
-                thumb = all_col[node_name]
-            enum_items.append((node_name.removesuffix('.png'), node_name.removesuffix('.png'), '', thumb.icon_id, i))
+                sub_location = join(cat, '{}.png'.format(node['name']))
+            filepath = join(directory, sub_location)
+            thumbname = node['name'] + '.png'
+            if is_default:
+                thumbname = 'default.png'
+            icon = all_col.get(thumbname)
+            thumb = None
+            if not icon:
+                thumb = all_col.load(thumbname, filepath, 'IMAGE')
+            else:
+                thumb = all_col[thumbname]
+            enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, 0))
+    # if directory and exists(directory):
+    #     image_paths = []
+    #     for cat_folder in os.listdir(directory):
+    #         if cat_folder.endswith('.png') or cat_folder == 'dev_tools':
+    #             continue
+    #         cfpath = join(directory, cat_folder)
+    #         for fn in os.listdir(cfpath):
+    #             if fn.lower().endswith('.png'):
+    #                 image_paths.append(join(cat_folder, fn))
+    #     for i, name in enumerate(image_paths):
+    #         filepath = join(directory, name)
+    #         node_name = os.path.basename(name)
+    #         icon = all_col.get(node_name)
+    #         if not icon:
+    #             thumb = all_col.load(node_name, filepath, 'IMAGE')
+    #         else:
+    #             thumb = all_col[node_name]
+    #         enum_items.append((node_name.removesuffix('.png'), node_name.removesuffix('.png'), '', thumb.icon_id, i))
     enum_items.sort(key=lambda e: e[0])
     all_col.my_previews = enum_items
     return all_col.my_previews
 
 def previews_from_directory_items(prev_col):
+    data = get_node_data()
     enum_items = []
 
     if bpy.context is None:
@@ -72,20 +112,44 @@ def previews_from_directory_items(prev_col):
 
     directory = prev_col.my_previews_dir
 
-    if directory and exists(directory):
-        image_paths = []
-        for fn in os.listdir(directory):
-            if fn.lower().endswith(".png"):
-                image_paths.append(fn)
+    cat = os.path.basename(directory)
 
-        for i, name in enumerate(image_paths):
-            filepath = join(directory, name)
-            icon = all_col.get(name)
-            if not icon:
-                thumb = all_col.load(name, filepath, 'IMAGE')
-            else:
-                thumb = all_col[name]
-            enum_items.append((name.removesuffix('.png'), name.removesuffix('.png'), '', thumb.icon_id, i))
+    for node in data[cat]:
+        sub_location = ''
+        is_default = False
+        if node['override_thumb'] and node['thumb'] != 'default.png':
+            cat, thumb = node['thumb'].split('/')
+            sub_location = join(cat, thumb)
+        elif node['override_thumb'] and node['thumb'] != 'default.png':
+            is_default = True
+        else:
+            sub_location = join(cat, '{}.png'.format(node['name']))
+        filepath = join(directory, sub_location)
+        thumbname = node['name'] + '.png'
+        if is_default:
+            thumbname = 'default.png'
+        icon = all_col.get(thumbname)
+        thumb = None
+        if not icon:
+            thumb = all_col.load(thumbname, filepath, 'IMAGE')
+        else:
+            thumb = all_col[thumbname]
+        enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, 0))
+
+    # if directory and exists(directory):
+    #     image_paths = []
+    #     for fn in os.listdir(directory):
+    #         if fn.lower().endswith(".png"):
+    #             image_paths.append(fn)
+
+    #     for i, name in enumerate(image_paths):
+    #         filepath = join(directory, name)
+    #         icon = all_col.get(name)
+    #         if not icon:
+    #             thumb = all_col.load(name, filepath, 'IMAGE')
+    #         else:
+    #             thumb = all_col[name]
+    #         enum_items.append((name.removesuffix('.png'), name.removesuffix('.png'), '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
