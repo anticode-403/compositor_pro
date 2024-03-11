@@ -81,24 +81,6 @@ def preview_all():
             else:
                 thumb = all_col[thumbname]
             enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, 0))
-    # if directory and exists(directory):
-    #     image_paths = []
-    #     for cat_folder in os.listdir(directory):
-    #         if cat_folder.endswith('.png') or cat_folder == 'dev_tools':
-    #             continue
-    #         cfpath = join(directory, cat_folder)
-    #         for fn in os.listdir(cfpath):
-    #             if fn.lower().endswith('.png'):
-    #                 image_paths.append(join(cat_folder, fn))
-    #     for i, name in enumerate(image_paths):
-    #         filepath = join(directory, name)
-    #         node_name = os.path.basename(name)
-    #         icon = all_col.get(node_name)
-    #         if not icon:
-    #             thumb = all_col.load(node_name, filepath, 'IMAGE')
-    #         else:
-    #             thumb = all_col[node_name]
-    #         enum_items.append((node_name.removesuffix('.png'), node_name.removesuffix('.png'), '', thumb.icon_id, i))
     enum_items.sort(key=lambda e: e[0])
     all_col.my_previews = enum_items
     return all_col.my_previews
@@ -135,21 +117,6 @@ def previews_from_directory_items(prev_col):
         else:
             thumb = all_col[thumbname]
         enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, 0))
-
-    # if directory and exists(directory):
-    #     image_paths = []
-    #     for fn in os.listdir(directory):
-    #         if fn.lower().endswith(".png"):
-    #             image_paths.append(fn)
-
-    #     for i, name in enumerate(image_paths):
-    #         filepath = join(directory, name)
-    #         icon = all_col.get(name)
-    #         if not icon:
-    #             thumb = all_col.load(name, filepath, 'IMAGE')
-    #         else:
-    #             thumb = all_col[name]
-    #         enum_items.append((name.removesuffix('.png'), name.removesuffix('.png'), '', thumb.icon_id, i))
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
