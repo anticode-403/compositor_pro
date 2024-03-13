@@ -306,7 +306,8 @@ def process_custom_previews(context):
 
 def has_custom_nodes(context):
     if exists(custom_node_file) and get_preferences(context).customs != '':
-        process_custom_previews(context)
+        if len(custom_col.my_previews) == 0:
+            process_custom_previews(context)
         return True
     return False
 
@@ -369,3 +370,7 @@ def get_default_process_space():
 def write_custom_node(nodegroup):
     bpy.data.libraries.write(custom_node_file, {nodegroup.node_tree}, fake_user=True)
     return
+
+def delete_custom_node(node_name):
+    with bpy.data.libraries.load(custom_node_file) as (data, _):
+        data.node_groups.remove(node_name)
