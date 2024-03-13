@@ -9,8 +9,7 @@ preview_collections = {}
 main_dir = dirname(realpath(__file__))
 data_dir = join(main_dir,'data')
 blender_file = join(data_dir,'Compositor_Pro.blend')
-custom_node_file = join(data_dir, 'Custom Node Groups.blend')
-temp_custom_file = join(data_dir, 'TEMP Custom.blend')
+custom_node_folder = join(data_dir, 'customs')
 file_path_node_tree = join(blender_file,'NodeTree')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
@@ -313,7 +312,7 @@ def process_custom_previews(context):
     return
 
 def has_custom_nodes(context):
-    if exists(custom_node_file) and get_preferences(context).customs != '':
+    if get_preferences(context).customs != '':
         if len(custom_col.my_previews) == 0:
             process_custom_previews(context)
         return True
@@ -375,18 +374,14 @@ def get_default_process_space():
     else:
         return 'AgX Log'
 
+def get_custom_path(node_name):
+    return join(custom_node_folder, '{}.blend'.format(node_name))
+
 def write_custom_node(nodegroup):
-    bpy.data.libraries.write(custom_node_file, {nodegroup.node_tree}, fake_user=True)
+    bpy.data.libraries.write(get_custom_path(nodegroup.node_tree.name), {nodegroup.node_tree}, fake_user=True, path_remap='RELATIVE')
     return
 
-def refresh_custom_node_file(context):
-    if not has_custom_nodes(context):
-        os.remove(custom_node_file)
-        return
-    customs = re.findall(customs_regexp, get_preferences(context).customs)
-    with bpy.data.libraries.load(custom_node_file) as (data, load):
-        load.node_groups = [name for name in data.node_groups if '{};'.format(name) in customs]
-    node_groups = load.node_groups
-    bpy.data.libraries.write(temp_custom_file, set(node_groups), fake_user=True)
-    os.remove(custom_node_file)
-    os.rename(temp_custom_file, custom_node_file)
+def delete_custom_node(node_name):
+    node_path = get_custom_path(node_name)
+    os.remove(node_path)
+    bpy.data.libraries.remove(bpy.data.libraries[os.path.basename(node_path)])
