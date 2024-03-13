@@ -1,6 +1,6 @@
 bl_info = {
     "name" : "Compositor Pro",
-    "author" : "anticode-403, Nihal Rahman",
+    "author" : "Riley Rivera, Nihal Rahman",
     "location": "Blender Compositor",
     "blender" : (3, 6, 0),
     "version" : (0, 5, 1),
@@ -116,7 +116,7 @@ class main_panel(Panel):
             credits_row.alignment = 'CENTER'
             credits_row.scale_y = 0.25
             credits_row.enabled = False
-            credits_row.label(text="anticode-403")
+            credits_row.label(text="Riley Rivera")
             nihal_row = credit_box.row()
             nihal_row.alignment = 'CENTER'
             nihal_row.scale_y = 0.25
