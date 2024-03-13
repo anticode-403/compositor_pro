@@ -9,6 +9,7 @@ preview_collections = {}
 main_dir = dirname(realpath(__file__))
 data_dir = join(main_dir,'data')
 blender_file = join(data_dir,'Compositor_Pro.blend')
+custom_node_file = join(data_dir, 'Custom Node Groups.blend')
 file_path_node_tree = join(blender_file,'NodeTree')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
@@ -328,5 +329,5 @@ def round_vector(vector, t):
     return tuple(round(v_frag, t) for v_frag in vector)
 
 def create_file(nodegroup):
-    bpy.data.libraries.write(join(data_dir, 'Custom Node Groups.blend'), {nodegroup.node_tree}, fake_user=True)
+    bpy.data.libraries.write(custom_node_file, {nodegroup.node_tree}, fake_user=True)
     return
