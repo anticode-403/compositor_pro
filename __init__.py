@@ -74,7 +74,9 @@ class main_panel(Panel):
             ).choice = props.categories
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
                 panel.separator()
-                panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
+                context_menu = panel.box()
+                context_menu.label(text="Edit Node")
+                context_menu.operator('comp_pro.replace_grain', text="Replace Grain Texture")
 
             panel.separator()
             mixer_panel = panel.box()
