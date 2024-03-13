@@ -21,6 +21,7 @@ preview_dirs = {
     'dev_dir': join(preview_dir,'dev'),
 }
 favorite_regexp = r'[^:]+:[^:]+;'
+customs_regexp = r'[^;]+;'
 
 for key in preview_dirs.keys():
     prev_col = bpy.utils.previews.new()
@@ -33,7 +34,7 @@ preview_collections['fav'] = prev_col
 all_col = bpy.utils.previews.new()
 search_col = bpy.utils.previews.new()
 custom_col = bpy.utils.previews.new()
-custom_names = []
+custom_col.my_previews = []
 
 def get_node_data():
     raw = open(join(data_dir, 'nodes.json'))
@@ -278,37 +279,35 @@ def previews_from_search(self, context):
     return search_col.my_previews
 
 def previews_from_custom(self, context):
+    if custom_col.my_previews is None:
+        process_custom_previews(context)
     return custom_col.my_previews
 
-def process_custom_previews():
-    if not has_custom_nodes():
-        return
+def process_custom_previews(context):
+    # if not has_custom_nodes(context):
+    #     return
     thumb = custom_col.get('custom')
     if not thumb:
         thumb = custom_col.load('custom', join(preview_dir, 'default.png'), 'IMAGE')
     else:
         thumb = custom_col['custom']
-    _custom_names = []
-    with bpy.data.libraries.load(custom_node_file) as (_, data):
-        for node_name in data.node_groups:
-            _custom_names.append(node_name)
-            if node_name not in custom_names:
-                item = (node_name, node_name, '', thumb.icon_id, len(custom_col.my_previews))
-                custom_col.my_previews.append(item)
-                custom_names.append(node_name)
-        if len (custom_names) != len(custom_col.my_previews):
-            for preview in custom_col.my_previews:
-                if preview not in _custom_names:
-                    custom_col.my_previews.remove(preview)
-    return      
+    customs = re.findall(customs_regexp, get_preferences(context).customs)
+    for i, custom_entry in enumerate(customs):
+        custom = custom_entry.removesuffix(';')
+        item = (custom, custom, '', thumb.icon_id, i)
+        if item not in custom_col.my_previews:
+            custom_col.my_previews.append(item)
+    if len (customs) != len(custom_col.my_previews):
+        for preview in custom_col.my_previews:
+            if '{};'.format(preview[0]) not in customs:
+                custom_col.my_previews.remove(preview)
+    get_preferences(context).customs = ''.join(customs)
+    return
 
-def has_custom_nodes():
-    if exists(custom_node_file):
-        with bpy.data.libraries.load(custom_node_file) as (_, data):
-            if len(data.node_groups) > 0:
-                if len(data.node_groups) != len(custom_col.my_previews):
-                    process_custom_previews()
-                return True
+def has_custom_nodes(context):
+    if exists(custom_node_file) and get_preferences(context).customs != '':
+        process_custom_previews(context)
+        return True
     return False
 
 def make_cat_list(self, context):
@@ -324,7 +323,7 @@ def make_cat_list(self, context):
     if has_favorites(context):
         cat_list.append(None)
         cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
-    if has_custom_nodes():
+    if has_custom_nodes(context):
         if not has_favorites(context):
             cat_list.append(None)
         cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
@@ -367,9 +366,6 @@ def get_default_process_space():
     else:
         return 'AgX Log'
 
-def round_vector(vector, t):
-    return tuple(round(v_frag, t) for v_frag in vector)
-
-def create_file(nodegroup):
+def write_custom_node(nodegroup):
     bpy.data.libraries.write(custom_node_file, {nodegroup.node_tree}, fake_user=True)
     return
