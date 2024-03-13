@@ -10,6 +10,7 @@ main_dir = dirname(realpath(__file__))
 data_dir = join(main_dir,'data')
 blender_file = join(data_dir,'Compositor_Pro.blend')
 custom_node_folder = join(data_dir, 'customs')
+custom_node_folder = join(data_dir, 'customs')
 file_path_node_tree = join(blender_file,'NodeTree')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
@@ -21,6 +22,7 @@ preview_dirs = {
     'dev_dir': join(preview_dir,'dev'),
 }
 favorite_regexp = r'[^:]+:[^:]+;'
+customs_regexp = r'[^;]+;'
 customs_regexp = r'[^;]+;'
 
 for key in preview_dirs.keys():
