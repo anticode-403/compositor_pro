@@ -95,7 +95,7 @@ class main_panel(Panel):
             panel.separator()
             custom_nodes = panel.box()
             custom_nodes.label(text="Custom Node Management")
-            custom_nodes.operator('comp_pro.add_custom')
+            custom_nodes.operator('comp_pro.add_custom', enabled=is_custom_node(compositor.nodes.active))
 
             panel.separator()
             credit_box = panel.box()
