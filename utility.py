@@ -80,7 +80,7 @@ def preview_all():
                 thumb = all_col.load(thumbname, filepath, 'IMAGE')
             else:
                 thumb = all_col[thumbname]
-            enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, 0))
+            enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, len(enum_items)))
     enum_items.sort(key=lambda e: e[0])
     all_col.my_previews = enum_items
     return all_col.my_previews
@@ -116,7 +116,7 @@ def previews_from_directory_items(prev_col):
             thumb = all_col.load(thumbname, filepath, 'IMAGE')
         else:
             thumb = all_col[thumbname]
-        enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, 0))
+        enum_items.append((node['name'], node['name'], node['description'], thumb.icon_id, len(enum_items)))
     prev_col.my_previews = enum_items
     prev_col.my_previews_dir = directory
     return prev_col.my_previews
