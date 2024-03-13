@@ -328,10 +328,10 @@ def round_vector(vector, t):
     return tuple(round(v_frag, t) for v_frag in vector)
 
 def convert_ng(nodegroup):
-    store_props = ['name', 'bl_idname', 'inputs', 'outputs', 'location']
+    store_props = ['name', 'bl_idname', 'inputs', 'outputs', 'location'] # Props we should store no matter what.
     optional_props = {'hide': False, 'label': '', 'mute': False, 'parent': None, 'select': False, 'show_options': True,
         'show_preview': False, 'show_texture': False,
-        'use_custom_color': False}
+        'use_custom_color': False} # Props we should only store if they are not the default.
     ignored_props = ['bl_description', 'bl_icon', 'bl_label', 'type', 'bl_height_default', 'bl_height_max',
         'bl_height_min', 'bl_rna', 'bl_static_type', 'bl_width_default',
         'bl_width_max', 'bl_width_min', 'draw_buttons', 'draw_buttons_ext',
@@ -339,7 +339,7 @@ def convert_ng(nodegroup):
         'internal_links', 'is_registered_node_type', 'output_template', 'poll', 'poll_instance',
         'rna_type', 'socket_value_update', 'update', 'image_user', 'dimensions',
         'width_hidden', 'interface', 'object', 'text', 'color', 'height', 'image',
-        'width', 'filepath']
+        'width', 'filepath'] # Storing these props does nothing for us.
     node_tree = nodegroup.node_tree
     nodes = node_tree.nodes
 
