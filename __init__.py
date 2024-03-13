@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import previews_from_search, update_search_cat, is_broken_cm, get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import *
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
