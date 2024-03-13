@@ -539,7 +539,7 @@ class compositor_pro_remove_custom(Operator):
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
-            COMPPRO_MT_radial_menu ]
+            compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu ]
 
 kmd = [None, None]
 
