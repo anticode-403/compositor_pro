@@ -36,11 +36,6 @@ class compositor_pro_addon_preferences(AddonPreferences):
         description="A list of your custom nodes",
         default=''
     )
-    customs: StringProperty(
-        name='Custom Nodes',
-        description="A list of your custom nodes",
-        default=''
-    )
     quick_add: BoolProperty(
         name="Quick Add",
         description="Add nodes instantly when selected",
