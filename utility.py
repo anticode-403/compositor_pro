@@ -327,6 +327,10 @@ def get_default_process_space():
 def round_vector(vector, t):
     return tuple(round(v_frag, t) for v_frag in vector)
 
+def create_file(nodegroup):
+    bpy.data.libraries.write(join(data_dir, 'Custom Node Groups.blend'), {nodegroup.node_tree}, fake_user=True)
+    return
+
 def convert_ng(nodegroup):
     store_props = ['name', 'bl_idname', 'inputs', 'outputs', 'location'] # Props we should store no matter what.
     optional_props = {'hide': False, 'label': '', 'mute': False, 'parent': None, 'select': False, 'show_options': True,

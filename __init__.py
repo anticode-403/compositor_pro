@@ -86,6 +86,7 @@ class main_panel(Panel):
             add_process_colorspace = colorgrade_panel.row(align=True)
             add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
             add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
+            panel.operator('comp_pro.add_custom')
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
@@ -420,9 +421,20 @@ class compositor_pro_open_info(Operator):
         print(node)
         return {'FINISHED'}
 
+class compositor_pro_add_custom(Operator):
+    bl_idname = 'comp_pro.add_custom'
+    bl_description = 'Turn a nodegroup into a custom Compositor Pro node'
+    bl_category = 'Node'
+    bl_label = 'Add Custom Node'
+
+    def invoke(self, context, event):
+        nodegroup = context.scene.node_tree.nodes.active
+        create_file(nodegroup)
+        return {'FINISHED'}
+
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
+            compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
             COMPPRO_MT_radial_menu ]
 
 kmd = [None, None]
