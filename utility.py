@@ -450,7 +450,7 @@ def convert_ng(nodegroup):
                     _mapping['curves'] = _curves
                     properties[prop] = _mapping
                 else: # Catch all for any nodes we missed.
-                    if isinstance(_props[prop], (int, str, bool, float)):
+                    if isinstance(_props[prop], (int, str, bool, float, tuple)):
                         properties[prop] = _props[prop]
                     else:
                         try:
