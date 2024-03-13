@@ -41,7 +41,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
         description="Add nodes instantly when selected",
         default=False
     )
-    developer_insights: BoolProperty(
+    dev_insights: BoolProperty(
         name="Developer Insights",
         description="Do not turn this on unless you are trying to debug and know what you are doing",
         default=False
@@ -94,7 +94,8 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box = layout.box()
         box.label(text="Other Options")
         box.prop(self, 'dev_tools')
-        if self.developer_insights:
+        box.prop(self, 'dev_insights')
+        if self.dev_insights:
             box = layout.box()
             box.label(text="Developer Insights")
             box.prop(self, 'favorites')
