@@ -174,7 +174,7 @@ def get_preferences(context):
     return context.preferences.addons[__package__].preferences
 
 def is_custom_node(node):
-    return node.bl_idname == 'CompositorNodeGroup' and not node.node_tree.name.startswith('CompPro_')
+    return node.bl_idname == 'CompositorNodeGroup' and not node.name.startswith('CompPro_')
 
 def has_color_management ():
     color_management_dir = ''
