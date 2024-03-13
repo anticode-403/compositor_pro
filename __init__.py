@@ -481,7 +481,7 @@ class compositor_pro_toggle_favorite(Operator):
             if not has_favorites(context):
                 context.scene.compositor_pro_props.categories = 'mixed'
         else:
-            add_favorite(context, self.choice, node)
+            add_favorite(context, node)
         return {'FINISHED'}
 
 class compositor_pro_open_info(Operator):

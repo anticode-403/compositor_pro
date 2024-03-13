@@ -50,6 +50,13 @@ def get_data_from_node(category, node_name):
         if node['name'] == node_name:
             return node
 
+def get_category_from_node(node_name):
+    data = get_node_data()
+    for cat in data.keys():
+        for node in data[cat]:
+            if node['name'] == node_name:
+                return cat
+
 def get_active_node_path(choice):
     return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
 
@@ -202,9 +209,10 @@ def color_management_list_to_tuples(enum_item):
 def color_management_list_to_strings(enum_item):
     return enum_item.name
 
-def add_favorite(context, category, node):
+def add_favorite(context, node):
     favorite_string = get_preferences(context).favorites
     favs = re.findall(favorite_regexp, favorite_string)
+    category = get_category_from_node(node)
     favs.append('{}:{};'.format(category, node))
     new_string = ''.join(favs)
     get_preferences(context).favorites = new_string
@@ -255,7 +263,7 @@ def has_favorites(context):
 def process_favorites_previews(favs):
     prev_col = preview_collections['fav']
     items = []
-    for i, favorite in enumerate(favs):
+    for favorite in favs:
         cat, fnode = favorite.removesuffix(';').split(':')
         fnode_icon = fnode + '.png'
         filepath = join(preview_dir, join(cat, fnode_icon))
@@ -264,7 +272,8 @@ def process_favorites_previews(favs):
             thumb = all_col.load(fnode_icon, filepath, 'IMAGE')
         else:
             thumb = all_col[fnode_icon]
-        item = (fnode, fnode, '', thumb.icon_id, i)
+        node_data = get_data_from_node(cat, fnode)
+        item = (fnode, fnode, node_data['description'], thumb.icon_id, len(items))
         if item not in prev_col.my_previews:
             prev_col.my_previews.append(item)
         items.append(item)
