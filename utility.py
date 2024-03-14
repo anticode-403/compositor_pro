@@ -38,6 +38,16 @@ search_col = bpy.utils.previews.new()
 custom_col = bpy.utils.previews.new()
 custom_col.my_previews = []
 
+node_colors = {
+    'mixed': (1, .15, .065),
+    'unmixed': (1, .753, .242),
+    'color': (.117, 1, .242),
+    'batches': (.063, 1, .847),
+    'utilities': (.283, .120, 1),
+    'dev': (1, 1, 1),
+    'custom': (1, 1, 1)
+}
+
 def get_node_data():
     raw = open(join(data_dir, 'nodes.json'))
     data = json.load(raw)
@@ -49,6 +59,14 @@ def get_data_from_node(category, node_name):
     for node in data[category]:
         if node['name'] == node_name:
             return node
+
+def get_all_from_node(node_name):
+    data = get_node_data()
+    for cat in data.keys():
+        for node in data[cat]:
+            if node['name'] == node_name:
+                return cat, node
+    return None, None
 
 def get_category_from_node(node_name):
     data = get_node_data()
@@ -144,7 +162,14 @@ def previews_from_favorites(self, context):
     return prev_col.my_previews
 
 def recursive_node_fixer (node_group, context):
-    node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
+    cat, data = get_all_from_node(node_group.node_tree.name)
+    if data:
+        node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
+    else:
+        node_group.name = 'Custom_{}'.format(node_group.node_tree.name)
+        cat = 'custom'
+    node_group.use_custom_color = True
+    node_group.color = node_colors[cat]
     if node_group.node_tree.name == 'Global Drivers':
         driver_scene_name = 'Driver Scene'
         for fcurve in node_group.node_tree.animation_data.drivers:

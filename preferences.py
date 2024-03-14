@@ -67,6 +67,11 @@ class compositor_pro_addon_preferences(AddonPreferences):
         max=500,
         subtype='UNSIGNED'
     )
+    color_nodes: BoolProperty(
+        name="Use Colored Nodes",
+        description="Color nodes by category. It just looks nice",
+        default=True
+    )
     invert_mix_options: BoolProperty(
         name="Invert Mix Order",
         description="Invert the order that Add Mix Node processes selections.",
@@ -80,6 +85,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box.label(text="Addon Panel")
         box.prop(self, 'quick_add')
         box.prop(self, 'invert_mix_options')
+        box.prop(self, 'color_nodes')
         box.prop(self, 'thumbnail_size')
         box.prop(self, 'node_width')
         box = layout.box()
