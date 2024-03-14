@@ -168,8 +168,9 @@ def recursive_node_fixer (node_group, context):
     else:
         node_group.name = 'Custom_{}'.format(node_group.node_tree.name)
         cat = 'custom'
-    node_group.use_custom_color = True
-    node_group.color = node_colors[cat]
+    if get_preferences(context).color_nodes:
+        node_group.use_custom_color = True
+        node_group.color = node_colors[cat]
     if node_group.node_tree.name == 'Global Drivers':
         driver_scene_name = 'Driver Scene'
         for fcurve in node_group.node_tree.animation_data.drivers:
