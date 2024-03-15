@@ -19,7 +19,7 @@ import bpy
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from . utility import previews_from_search, update_search_cat, is_broken_cm, get_preferences, is_b3_cm, get_default_process_space, preview_all, make_cat_list, has_favorites, previews_from_favorites, get_active_node_path, rem_favorite, add_favorite, check_favorite, color_management_list_to_tuples, recursive_node_fixer, previews_from_directory_items, preview_collections, file_path_node_tree
+from . utility import *
 from . preferences import compositor_pro_addon_preferences
 
 class main_panel(Panel):
@@ -63,6 +63,8 @@ class main_panel(Panel):
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
             # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
+            if props.categories == 'custom':
+                add_button.operator('comp_pro.delete_custom', text='', icon='TRASH')
             add_button.operator(
                 'comp_pro.toggle_favorite',
                 text='',
@@ -86,6 +88,7 @@ class main_panel(Panel):
             add_process_colorspace = colorgrade_panel.row(align=True)
             add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
             add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
+            panel.operator('comp_pro.add_custom')
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
@@ -173,6 +176,9 @@ class compositor_pro_props(PropertyGroup):
     def quick_add_search(self, context):
         if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='search')
+    def quick_add_custom(self, context):
+        if get_preferences(context).quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='custom')
 
     comp_all: EnumProperty(
         items=preview_all(),
@@ -214,6 +220,10 @@ class compositor_pro_props(PropertyGroup):
         items=previews_from_search,
         update=quick_add_search
     )
+    comp_custom: EnumProperty(
+        items=previews_from_custom,
+        update=quick_add_custom
+    )
 
 class compositor_pro_add_node(Operator):
     bl_idname = 'comp_pro.add_node'
@@ -232,7 +242,10 @@ class compositor_pro_add_node(Operator):
         nodes = node_tree.nodes
         #append
         if not bpy.data.node_groups.get(group_name):
-            bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+            if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
+                bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+            else:
+                bpy.ops.wm.append(filename=group_name, directory=join(get_custom_path(group_name), 'NodeTree'))
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
@@ -420,9 +433,41 @@ class compositor_pro_open_info(Operator):
         print(node)
         return {'FINISHED'}
 
+class compositor_pro_add_custom(Operator):
+    bl_idname = 'comp_pro.add_custom'
+    bl_description = 'Turn a nodegroup into a custom Compositor Pro node'
+    bl_category = 'Node'
+    bl_label = 'Add Custom Node'
+
+    def invoke(self, context, event):
+        nodegroup = context.scene.node_tree.nodes.active
+        customs = re.findall(customs_regexp, get_preferences(context).customs)
+        customs.append('{};'.format(nodegroup.node_tree.name))
+        get_preferences(context).customs = ''.join(customs)
+        write_custom_node(nodegroup)
+        process_custom_previews(context)
+        return {'FINISHED'}
+
+class compositor_pro_remove_custom(Operator):
+    bl_idname = 'comp_pro.delete_custom'
+    bl_description = 'Delete a custom Compositor Pro node'
+    bl_category = 'Node'
+    bl_label = 'Delete Custom Node'
+
+    def invoke(self, context, event):
+        customs = re.findall(customs_regexp, get_preferences(context).customs)
+        node_name = context.scene.compositor_pro_props.comp_custom
+        customs.remove('{};'.format(node_name))
+        get_preferences(context).customs = ''.join(customs)
+        delete_custom_node(node_name)
+        process_custom_previews(context)
+        if len(customs) == 0:
+            context.scene.compositor_pro_props.categories = 'all'
+        return {'FINISHED'}
+
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
-            compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite,
+            compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
+            compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
             COMPPRO_MT_radial_menu ]
 
 kmd = [None, None]

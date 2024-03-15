@@ -31,6 +31,11 @@ class compositor_pro_addon_preferences(AddonPreferences):
         set=update_favorites,
         get=get_favorites
     )
+    customs: StringProperty(
+        name='Custom Nodes',
+        description="A list of your custom nodes",
+        default=''
+    )
     quick_add: BoolProperty(
         name="Quick Add",
         description="Add nodes instantly when selected",
@@ -75,3 +80,7 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box = layout.box()
         box.label(text="Other Options")
         box.prop(self, 'dev_tools')
+        # box = layout.box()
+        # box.label(text="Developer Insights")
+        # box.prop(self, 'favorites')
+        # box.prop(self, 'customs')

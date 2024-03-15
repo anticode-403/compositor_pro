@@ -9,6 +9,7 @@ preview_collections = {}
 main_dir = dirname(realpath(__file__))
 data_dir = join(main_dir,'data')
 blender_file = join(data_dir,'Compositor_Pro.blend')
+custom_node_folder = join(data_dir, 'customs')
 file_path_node_tree = join(blender_file,'NodeTree')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
@@ -20,6 +21,7 @@ preview_dirs = {
     'dev_dir': join(preview_dir,'dev'),
 }
 favorite_regexp = r'[^:]+:[^:]+;'
+customs_regexp = r'[^;]+;'
 
 for key in preview_dirs.keys():
     prev_col = bpy.utils.previews.new()
@@ -31,6 +33,8 @@ prev_col.my_previews = []
 preview_collections['fav'] = prev_col
 all_col = bpy.utils.previews.new()
 search_col = bpy.utils.previews.new()
+custom_col = bpy.utils.previews.new()
+custom_col.my_previews = []
 
 def get_node_data():
     raw = open(join(data_dir, 'nodes.json'))
@@ -225,6 +229,13 @@ def check_favorite(context, node):
             return True
     return False
 
+def get_fav_dir(context, node):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
+        if fnode == node:
+            return cat
 
 def has_favorites(context):
     favorite_string = get_preferences(context).favorites
@@ -274,6 +285,39 @@ def previews_from_search(self, context):
         update_search_cat(self, context)
     return search_col.my_previews
 
+def previews_from_custom(self, context):
+    if custom_col.my_previews is None:
+        process_custom_previews(context)
+    return custom_col.my_previews
+
+def process_custom_previews(context):
+    # if not has_custom_nodes(context):
+    #     return
+    thumb = custom_col.get('custom')
+    if not thumb:
+        thumb = custom_col.load('custom', join(preview_dir, 'default.png'), 'IMAGE')
+    else:
+        thumb = custom_col['custom']
+    customs = re.findall(customs_regexp, get_preferences(context).customs)
+    for i, custom_entry in enumerate(customs):
+        custom = custom_entry.removesuffix(';')
+        item = (custom, custom, '', thumb.icon_id, i)
+        if item not in custom_col.my_previews:
+            custom_col.my_previews.append(item)
+    if len (customs) != len(custom_col.my_previews):
+        for preview in custom_col.my_previews:
+            if '{};'.format(preview[0]) not in customs:
+                custom_col.my_previews.remove(preview)
+    get_preferences(context).customs = ''.join(customs)
+    return
+
+def has_custom_nodes(context):
+    if get_preferences(context).customs != '':
+        if len(custom_col.my_previews) == 0:
+            process_custom_previews(context)
+        return True
+    return False
+
 def make_cat_list(self, context):
     cat_list = [
         ('all', 'All', 'Every node in our addon'),
@@ -287,8 +331,12 @@ def make_cat_list(self, context):
     if has_favorites(context):
         cat_list.append(None)
         cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
-    if get_preferences(context).dev_tools:
+    if has_custom_nodes(context):
         if not has_favorites(context):
+            cat_list.append(None)
+        cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
+    if get_preferences(context).dev_tools:
+        if not (has_favorites(context) or has_custom_nodes(context)):
             cat_list.append(None)
         cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     if self.search_string != '':
@@ -307,6 +355,8 @@ def cleanup():
     for preview_col in preview_collections.values():
         bpy.utils.previews.remove(preview_col)
     bpy.utils.previews.remove(all_col)
+    bpy.utils.previews.remove(custom_col)
+    bpy.utils.previews.remove(search_col)
 
 def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
@@ -323,3 +373,15 @@ def get_default_process_space():
         return 'Filmic Log'
     else:
         return 'AgX Log'
+
+def get_custom_path(node_name):
+    return join(custom_node_folder, '{}.blend'.format(node_name))
+
+def write_custom_node(nodegroup):
+    bpy.data.libraries.write(get_custom_path(nodegroup.node_tree.name), {nodegroup.node_tree}, fake_user=True, path_remap='RELATIVE')
+    return
+
+def delete_custom_node(node_name):
+    node_path = get_custom_path(node_name)
+    os.remove(node_path)
+    bpy.data.libraries.remove(bpy.data.libraries[os.path.basename(node_path)])
