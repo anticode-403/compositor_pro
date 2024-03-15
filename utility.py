@@ -434,5 +434,8 @@ def write_custom_node(nodegroup):
 
 def delete_custom_node(node_name):
     node_path = get_custom_path(node_name)
-    os.remove(node_path)
-    bpy.data.libraries.remove(bpy.data.libraries[os.path.basename(node_path)])
+    try:
+        os.remove(node_path)
+        bpy.data.libraries.remove(bpy.data.libraries[os.path.basename(node_path)])
+    except:
+        print('Could not find custom node. Did something go wrong?')
