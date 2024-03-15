@@ -237,7 +237,7 @@
         {
             "name": "Screen UV",
             "override_thumb": false,
-            "description": "Adds the screen UV texture of the current Scene. Z channel is constant 1"
+            "description": "Adds the screen UV texture of the current scene. Z channel is constant 1"
         },
         {
             "name": "Smart Denoiser",
