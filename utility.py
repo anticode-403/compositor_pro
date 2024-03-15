@@ -209,7 +209,7 @@ def get_preferences(context):
     return context.preferences.addons[__package__].preferences
 
 def is_custom_node(node):
-    if not node: 
+    if not node:
         return False
     return node.bl_idname == 'CompositorNodeGroup' and not node.name.startswith('CompPro_')
 

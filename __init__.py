@@ -5,7 +5,7 @@ bl_info = {
     "blender" : (3, 6, 0),
     "version" : (0, 5, 1),
     "category" : "Compositing",
-    # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
+    "doc_url": "https://comppro.anticode.me/",
 }
 
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
@@ -16,6 +16,7 @@ if 'bpy' in locals(): # This means that an older version of the addon was previo
         importlib.reload(preferences)
 
 import bpy
+import webbrowser
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
@@ -51,7 +52,7 @@ class main_panel(Panel):
             panel = panel.column()
             # if is_b3_cm():
             #     panel.label(text="Please update to Blender 4.0")
-            
+
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
                 optimization_menu = panel.box()
                 optimization_menu.label(text="Optimization Menu")
@@ -66,15 +67,16 @@ class main_panel(Panel):
             add_panel.template_icon_view(props, 'comp_{}'.format(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
-            # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
             if props.categories == 'custom':
                 add_button.operator('comp_pro.delete_custom', text='', icon='TRASH')
-            add_button.operator(
-                'comp_pro.toggle_favorite',
-                text='',
-                icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
-                depress=check_favorite(context, eval(get_active_node_path(props.categories)))
-            ).choice = props.categories
+            else:
+                add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories
+                add_button.operator(
+                    'comp_pro.toggle_favorite',
+                    text='',
+                    icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
+                    depress=check_favorite(context, eval(get_active_node_path(props.categories)))
+                ).choice = props.categories
 
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
                 panel.separator()
@@ -494,7 +496,11 @@ class compositor_pro_open_info(Operator):
 
     def invoke(self, context, event):
         node = eval(get_active_node_path(self.choice))
-        print(node)
+        node_link = node.lower().replace(' ', '_')
+        cat = self.choice
+        if self.choice == 'fav':
+            cat = get_category_from_node(node)
+        webbrowser.open('https://comppro.anticode.me/nodes/{}/{}.html'.format(cat, node_link))
         return {'FINISHED'}
 
 class compositor_pro_add_custom(Operator):
