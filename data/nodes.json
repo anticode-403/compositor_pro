@@ -142,6 +142,11 @@
             "description": "Interprets the incoming input as if it was in Filmlight E-gamut linear space"
         },
         {
+            "name": "Linear Exponent",
+            "override_thumb": false,
+            "description": "An exponent function that works on linear inputs by determining a middle grey value."
+        },
+        {
             "name": "Primaries",
             "override_thumb": false,
             "description": "Alter the primary RGB colors and remaps them to something else"
