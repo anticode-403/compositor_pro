@@ -36,6 +36,13 @@ class main_panel(Panel):
             return True
         else:
             return False
+    
+    def draw_header(self, context):
+        layout = self.layout
+
+        row = layout.row(align=True)
+        row.operator('comp_pro.open_docs', text='', icon='QUESTION')
+        row.operator('comp_pro.join_discord', text='', icon_value=utility_icons['Discord_icon.png'].icon_id)
 
     def draw(self, context): # Create 3D View panel
         layout = self.layout
@@ -503,6 +510,26 @@ class compositor_pro_open_info(Operator):
         webbrowser.open('https://comppro.anticode.me/nodes/{}/{}.html'.format(cat, node_link))
         return {'FINISHED'}
 
+class compositor_pro_open_docs(Operator):
+    bl_idname = 'comp_pro.open_docs'
+    bl_description = 'Open Compositor Pro documentation'
+    bl_category = 'Node'
+    bl_label = 'Open Documentation'
+
+    def invoke(self, context, event):
+        webbrowser.open(bl_info['doc_url'])
+        return {'FINISHED'}
+
+class compositor_pro_join_discord(Operator):
+    bl_idname = 'comp_pro.join_discord'
+    bl_description = 'Join the Artum Discord for Compositor Pro'
+    bl_category = 'Node'
+    bl_label = 'Join Discord'
+
+    def invoke(self, context, event):
+        webbrowser.open('https://discord.gg/g5tUfzjqaj')
+        return {'FINISHED'}
+
 class compositor_pro_add_custom(Operator):
     bl_idname = 'comp_pro.add_custom'
     bl_description = 'Turn a nodegroup into a custom Compositor Pro node'
@@ -548,7 +575,7 @@ class compositor_pro_remove_custom(Operator):
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
-            compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu ]
+            compositor_pro_join_discord, compositor_pro_open_docs, compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu ]
 
 kmd = [None, None]
 

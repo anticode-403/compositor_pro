@@ -37,6 +37,8 @@ all_col = bpy.utils.previews.new()
 search_col = bpy.utils.previews.new()
 custom_col = bpy.utils.previews.new()
 custom_col.my_previews = []
+utility_icons = bpy.utils.previews.new()
+utility_icons.load('Discord_icon.png', join(data_dir, 'Discord_icon.png'), 'IMAGE')
 
 node_colors = {
     'mixed': [0.407240, 0.158961, 0.104617],
@@ -408,6 +410,7 @@ def cleanup():
     bpy.utils.previews.remove(all_col)
     bpy.utils.previews.remove(custom_col)
     bpy.utils.previews.remove(search_col)
+    bpy.utils.previews.remove(utility_icons)
 
 def is_b3_cm():
     return not (has_color_management() or bpy.app.version >= (4, 0, 0))
