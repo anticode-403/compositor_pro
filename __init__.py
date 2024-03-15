@@ -1,11 +1,11 @@
 bl_info = {
     "name" : "Compositor Pro",
-    "author" : "anticode-403, Nihal Rahman",
+    "author" : "Riley Rivera, Nihal Rahman",
     "location": "Blender Compositor",
     "blender" : (3, 6, 0),
     "version" : (0, 5, 1),
     "category" : "Compositing",
-    # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
+    "doc_url": "https://comppro.anticode.me/",
 }
 
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
@@ -16,6 +16,7 @@ if 'bpy' in locals(): # This means that an older version of the addon was previo
         importlib.reload(preferences)
 
 import bpy
+import webbrowser
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
@@ -51,29 +52,38 @@ class main_panel(Panel):
             panel = panel.column()
             # if is_b3_cm():
             #     panel.label(text="Please update to Blender 4.0")
+
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
-                panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
+                optimization_menu = panel.box()
+                optimization_menu.label(text="Optimization Menu")
+                optimization_menu.operator('comp_pro.enable_optimizations', text="Enable Optimizations", icon='ERROR')
                 panel.separator()
+
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
             add_panel.prop(props, 'search_string')
             add_panel = add_panel.column(align=True)
             add_panel.prop(props, 'categories', text='')
-            add_panel.template_icon_view(props, 'comp_{}'.format((props.categories)), show_labels=True, scale_popup=prefs.thumbnail_size)
+            add_panel.template_icon_view(props, 'comp_{}'.format(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
-            # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
             if props.categories == 'custom':
                 add_button.operator('comp_pro.delete_custom', text='', icon='TRASH')
-            add_button.operator(
-                'comp_pro.toggle_favorite',
-                text='',
-                icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
-                depress=check_favorite(context, eval(get_active_node_path(props.categories)))
-            ).choice = props.categories
+            else:
+                add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories
+                add_button.operator(
+                    'comp_pro.toggle_favorite',
+                    text='',
+                    icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
+                    depress=check_favorite(context, eval(get_active_node_path(props.categories)))
+                ).choice = props.categories
+
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:
                 panel.separator()
-                panel.operator('comp_pro.replace_grain', text="Replace Grain Texture")
+                context_menu = panel.box()
+                context_menu.label(text="Edit Node")
+                context_menu.operator('comp_pro.replace_grain', text="Replace Grain Texture")
+
             panel.separator()
             mixer_panel = panel.box()
             mixer_panel.label(text="Add Mix Node")
@@ -82,13 +92,38 @@ class main_panel(Panel):
             mixer_options.prop(props, 'mixer_blend_type', text='')
             mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
+
             panel.separator()
             colorgrade_panel = panel.box()
             colorgrade_panel.label(text="Color Grading")
             add_process_colorspace = colorgrade_panel.row(align=True)
             add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
             add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
-            panel.operator('comp_pro.add_custom')
+
+            panel.separator()
+            custom_nodes = panel.box()
+            custom_nodes.label(text="Custom Node Management")
+            custom_nodes = custom_nodes.column(align=True)
+            add_custom = custom_nodes.row()
+            add_custom.operator('comp_pro.add_custom')
+            add_custom.enabled = is_custom_node(compositor.nodes.active)
+            custom_nodes.operator('comp_pro.rebuild_customs')
+
+            panel.separator()
+            credit_box = panel.box()
+            version_row = credit_box.row()
+            version_row.alignment = 'CENTER'
+            version_row.label(text="Compositor Pro {}.{}.{}".format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2]))
+            credits_row = credit_box.row()
+            credits_row.alignment = 'CENTER'
+            credits_row.scale_y = 0.25
+            credits_row.enabled = False
+            credits_row.label(text="Riley Rivera")
+            nihal_row = credit_box.row()
+            nihal_row.alignment = 'CENTER'
+            nihal_row.scale_y = 0.25
+            nihal_row.enabled = False
+            nihal_row.label(text="Nihal Rahman")
 
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
@@ -101,9 +136,20 @@ class COMPPRO_MT_radial_menu(Menu):
 
         pie = self.layout.menu_pie()
         box = pie.column(align=True)
-        if has_favorites(context):
-            box.label(text="Favorite Nodes")
-            box.template_icon_view(props, 'comp_fav_rad', show_labels=True, scale_popup=prefs.thumbnail_size)
+        if has_favorites(context) or has_custom_nodes(context):
+            category = 'fav_rad'
+            if has_favorites(context) and has_custom_nodes(context):
+                box.label(text="Instant Node")
+                categories = box.row(align=True)
+                categories.prop(props, 'n_categories', expand=True)
+                category = props.n_categories
+            elif has_favorites(context):
+                box.label(text="Favorite Nodes")
+                category = 'fav_rad'
+            else:
+                box.label(text="Custom Nodes")
+                category = 'custom_rad'
+            box.template_icon_view(props, 'comp_{}'.format(category), show_labels=True, scale_popup=prefs.thumbnail_size)
         box = pie.column(align=True)
         mixer_options = box.row(align=True)
         mixer_options.prop(props, 'mixer_fac', text='Fac')
@@ -113,11 +159,21 @@ class COMPPRO_MT_radial_menu(Menu):
         add_process_colorspace = box.row(align=True)
         add_process_colorspace.operator('comp_pro.add_process_colorspace', text="Add Process Space")
         add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
+        box = pie.column(align=True)
+        box.label(text="anticode-403 and Nihal Rahman")
 
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
         name='Category',
         items=make_cat_list
+    )
+    n_categories: EnumProperty(
+        name='Category',
+        items=(
+            ('fav_rad', 'Favorites', 'Your favorite nodes'),
+            ('custom_rad', 'Custom Nodes', 'Nodes you made yourself')
+        ),
+        default='fav_rad'
     )
     mixer_blend_type: EnumProperty(
         name='Mixer Blend Type',
@@ -148,6 +204,9 @@ class compositor_pro_props(PropertyGroup):
 
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
+
+    def import_custom_rad(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='custom_rad')
 
     def quick_add_all(self, context):
         if get_preferences(context).quick_add:
@@ -224,6 +283,10 @@ class compositor_pro_props(PropertyGroup):
         items=previews_from_custom,
         update=quick_add_custom
     )
+    comp_custom_rad: EnumProperty(
+        items=previews_from_custom,
+        update=import_custom_rad
+    )
 
 class compositor_pro_add_node(Operator):
     bl_idname = 'comp_pro.add_node'
@@ -240,6 +303,8 @@ class compositor_pro_add_node(Operator):
             return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
+        if bpy.context.active_object.mode != 'OBJECT':
+            bpy.ops.object.mode_select(mode='OBJECT')
         #append
         if not bpy.data.node_groups.get(group_name):
             if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
@@ -249,13 +314,14 @@ class compositor_pro_add_node(Operator):
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
-        try:
+        if bpy.data.node_groups.get(group_name) is not None:
             new_group.node_tree.use_fake_user = False
-        except:
-            self.report('ERROR', 'This node does not exist in data file.')
+        else:
+            self.report({'ERROR'}, 'This node does not exist in data file.')
         #fix nodes
         recursive_node_fixer(new_group, context)
         #attatch to cursor
+        new_group.width = get_preferences(context).node_width
         new_group.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == new_group
@@ -417,7 +483,7 @@ class compositor_pro_toggle_favorite(Operator):
             if not has_favorites(context):
                 context.scene.compositor_pro_props.categories = 'mixed'
         else:
-            add_favorite(context, self.choice, node)
+            add_favorite(context, node)
         return {'FINISHED'}
 
 class compositor_pro_open_info(Operator):
@@ -430,7 +496,11 @@ class compositor_pro_open_info(Operator):
 
     def invoke(self, context, event):
         node = eval(get_active_node_path(self.choice))
-        print(node)
+        node_link = node.lower().replace(' ', '_')
+        cat = self.choice
+        if self.choice == 'fav':
+            cat = get_category_from_node(node)
+        webbrowser.open('https://comppro.anticode.me/nodes/{}/{}.html'.format(cat, node_link))
         return {'FINISHED'}
 
 class compositor_pro_add_custom(Operator):
@@ -446,6 +516,16 @@ class compositor_pro_add_custom(Operator):
         get_preferences(context).customs = ''.join(customs)
         write_custom_node(nodegroup)
         process_custom_previews(context)
+        return {'FINISHED'}
+
+class compositor_pro_rebuild_customs(Operator):
+    bl_idname = 'comp_pro.rebuild_customs'
+    bl_description = 'Deep refresh your custom nodes, in case some are missing or sticking behind when they shouldn\'t.'
+    bl_category = 'Node'
+    bl_label = 'Refresh Custom Nodes'
+
+    def invoke(self, context, event):
+        deep_process_custom_previews(context)
         return {'FINISHED'}
 
 class compositor_pro_remove_custom(Operator):
@@ -468,7 +548,7 @@ class compositor_pro_remove_custom(Operator):
 classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
-            COMPPRO_MT_radial_menu ]
+            compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu ]
 
 kmd = [None, None]
 

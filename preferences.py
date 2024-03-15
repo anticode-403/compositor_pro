@@ -41,6 +41,11 @@ class compositor_pro_addon_preferences(AddonPreferences):
         description="Add nodes instantly when selected",
         default=False
     )
+    dev_insights: BoolProperty(
+        name="Developer Insights",
+        description="Do not turn this on unless you are trying to debug and know what you are doing",
+        default=False
+    )
     dev_tools: BoolProperty(
         name="Dev Tools",
         description="A collection of nodes used for developing Compositor Pro",
@@ -53,6 +58,19 @@ class compositor_pro_addon_preferences(AddonPreferences):
         min=1,
         max=100,
         subtype='UNSIGNED'
+    )
+    node_width: FloatProperty(
+        name="Node Width",
+        description="The width of nodes when they are imported",
+        default=140,
+        min=140,
+        max=500,
+        subtype='UNSIGNED'
+    )
+    color_nodes: BoolProperty(
+        name="Use Colored Nodes",
+        description="Color nodes by category. It just looks nice",
+        default=True
     )
     invert_mix_options: BoolProperty(
         name="Invert Mix Order",
@@ -67,7 +85,9 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box.label(text="Addon Panel")
         box.prop(self, 'quick_add')
         box.prop(self, 'invert_mix_options')
+        box.prop(self, 'color_nodes')
         box.prop(self, 'thumbnail_size')
+        box.prop(self, 'node_width')
         box = layout.box()
         box.label(text="Keyboard Shortcuts")
         wm = bpy.context.window_manager
@@ -80,7 +100,9 @@ class compositor_pro_addon_preferences(AddonPreferences):
         box = layout.box()
         box.label(text="Other Options")
         box.prop(self, 'dev_tools')
-        # box = layout.box()
-        # box.label(text="Developer Insights")
-        # box.prop(self, 'favorites')
-        # box.prop(self, 'customs')
+        box.prop(self, 'dev_insights')
+        if self.dev_insights:
+            box = layout.box()
+            box.label(text="Developer Insights")
+            box.prop(self, 'favorites')
+            box.prop(self, 'customs')

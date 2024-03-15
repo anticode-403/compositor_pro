@@ -67,6 +67,11 @@
             "description": "Adds a colored purple blur effect that is similar to old/faulty CMOS sensor digital cameras"
         },
         {
+            "name": "Sharpen",
+            "override_thumb": false,
+            "description": "Adds a sharpening process to the image, done in logarithmic space to avoid artifacts"
+        },
+        {
             "name": "Vignette",
             "override_thumb": false,
             "description": "Adds a vignette effect to the image, designed to emulate real cameras"
@@ -140,6 +145,11 @@
             "name": "Interpret E-gamut",
             "override_thumb": false,
             "description": "Interprets the incoming input as if it was in Filmlight E-gamut linear space"
+        },
+        {
+            "name": "Linear Exponent",
+            "override_thumb": false,
+            "description": "An exponent function that works on linear inputs by determining a middle grey value"
         },
         {
             "name": "Primaries",
@@ -227,7 +237,7 @@
         {
             "name": "Screen UV",
             "override_thumb": false,
-            "description": "Adds the screen UV texture of the current Scene. Z channel is constant 1"
+            "description": "Adds the screen UV texture of the current scene. Z channel is constant 1"
         },
         {
             "name": "Smart Denoiser",
@@ -260,66 +270,66 @@
             "name": "Absolute",
             "override_thumb": true,
             "thumb": "default.png",
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Bloom 5-step Box Blur",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Bloom 10-step Blur",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Compressed Distance",
             "override_thumb": true,
             "thumb": "default.png",
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Dot Product",
             "override_thumb": true,
             "thumb": "default.png",
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Global Colorspace Conversion",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Global Drivers",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Global Textures",
             "override_thumb": true,
             "thumb": "default.png",
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Grain Mosaic",
             "override_thumb": true,
             "thumb": "default.png",
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Mosaic 9-way Mix",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Mosaic Clamp",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         },
         {
             "name": "Uniform Radial Distortion",
             "override_thumb": false,
-            "description": "A node used for developing Compositor Pro nodes."
+            "description": "A node used for developing Compositor Pro nodes"
         }
     ]
 }
