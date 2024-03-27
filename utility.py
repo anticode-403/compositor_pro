@@ -163,7 +163,7 @@ def previews_from_favorites(self, context):
 
     return prev_col.my_previews
 
-def recursive_node_fixer (node_group, context):
+def name_and_color_node(node_group, context):
     cat, data = get_all_from_node(node_group.node_tree.name)
     if data:
         node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
@@ -173,6 +173,9 @@ def recursive_node_fixer (node_group, context):
     if get_preferences(context).color_nodes:
         node_group.use_custom_color = True
         node_group.color = node_colors[cat]
+
+def recursive_node_fixer (node_group, context):
+    name_and_color_node(node_group, context)
     if node_group.node_tree.name == 'Global Drivers':
         driver_scene_name = 'Driver Scene'
         for fcurve in node_group.node_tree.animation_data.drivers:
@@ -202,6 +205,7 @@ def recursive_node_fixer (node_group, context):
         if node.bl_idname == 'CompositorNodeGroup':
             if node.node_tree.name.endswith('.001'):
                 node.node_tree = bpy.data.node_groups.get(node.node_tree.name[0:-4])
+                name_and_color_node(node, context)
                 continue
             recursive_node_fixer(node, context)
             continue
