@@ -1,35 +1,17 @@
 import bpy
 from bpy.types import AddonPreferences
 from bpy.props import StringProperty, BoolProperty, FloatProperty
-import re
 import rna_keymap_ui
-from . utility import favorite_regexp, get_hotkey_entry_item
+from . utility import get_hotkey_entry_item
 
 class compositor_pro_addon_preferences(AddonPreferences):
-    def update_favorites(self, value):
-        favs = re.findall(favorite_regexp, value)
-        if len(favs) == 0:
-            self['favorites'] = ''
-            return
-        if ''.join(favs) == value:
-            self['favorites'] = value
-            return
-
-    def get_favorites(self):
-        try:
-            return self['favorites']
-        except:
-            self['favorites'] = self.favorites
-            return self['favorites']
 
     bl_idname = __package__
 
     favorites: StringProperty(
         name="Favorites",
         description="A list of your favorite nodes",
-        default='',
-        set=update_favorites,
-        get=get_favorites
+        default=''
     )
     customs: StringProperty(
         name='Custom Nodes',
