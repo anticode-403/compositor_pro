@@ -40,16 +40,6 @@ custom_col.my_previews = []
 utility_icons = bpy.utils.previews.new()
 utility_icons.load('Discord_icon.png', join(data_dir, 'Discord_icon.png'), 'IMAGE')
 
-node_colors = {
-    'mixed': [0.345098, 0.152941, 0.113725],
-    'unmixed': [0.101961, 0.203922, 0.270588],
-    'color': [0.25098, 0.105882, 0.168627],
-    'batches': [0.176471, 0.160784, 0.25098],
-    'utilities': [0.098039, 0.184314, 0.176471],
-    'dev': [0.090196, 0.090196, 0.090196],
-    'custom': [0.090196, 0.090196, 0.090196]
-}
-
 def get_node_data():
     raw = open(join(data_dir, 'nodes.json'))
     data = json.load(raw)
@@ -172,7 +162,7 @@ def name_and_color_node(node_group, context):
         cat = 'custom'
     if get_preferences(context).color_nodes:
         node_group.use_custom_color = True
-        node_group.color = node_colors[cat]
+        node_group.color = eval('get_preferences(context).node_colors.{}'.format(cat))
 
 def recursive_node_fixer (node_group, context):
     name_and_color_node(node_group, context)

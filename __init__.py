@@ -21,7 +21,7 @@ from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
 from . utility import *
-from . preferences import compositor_pro_addon_preferences
+from . preferences import *
 
 class main_panel(Panel):
     bl_label = "Compositor Pro"
@@ -575,10 +575,11 @@ class compositor_pro_remove_custom(Operator):
             context.scene.compositor_pro_props.categories = 'all'
         return {'FINISHED'}
 
-classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
+classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
-            compositor_pro_join_discord, compositor_pro_open_docs, compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu ]
+            compositor_pro_join_discord, compositor_pro_open_docs, compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu,
+            compositor_pro_addon_preferences ]
 
 kmd = [None, None]
 
