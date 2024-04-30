@@ -1,11 +1,11 @@
 bl_info = {
     "name" : "Compositor Pro",
-    "author" : "anticode-403, Nihal Rahman",
+    "author" : "Riley Rivera, Nihal Rahman",
     "location": "Blender Compositor",
     "blender" : (3, 6, 0),
-    "version" : (0, 5, 1),
+    "version" : (1, 0, 0),
     "category" : "Compositing",
-    # "doc_url": "https://comppro.anticode.me/", # Docs aren't ready.
+    "doc_url": "https://comppro.anticode.me/",
 }
 
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
@@ -16,11 +16,12 @@ if 'bpy' in locals(): # This means that an older version of the addon was previo
         importlib.reload(preferences)
 
 import bpy
+import webbrowser
 from bpy.types import Operator, Menu, Panel, PropertyGroup
 from bpy.props import StringProperty, FloatProperty, EnumProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
 from . utility import *
-from . preferences import compositor_pro_addon_preferences
+from . preferences import *
 
 class main_panel(Panel):
     bl_label = "Compositor Pro"
@@ -35,6 +36,13 @@ class main_panel(Panel):
             return True
         else:
             return False
+    
+    def draw_header(self, context):
+        layout = self.layout
+
+        row = layout.row(align=True)
+        row.operator('comp_pro.open_docs', text='', icon='QUESTION')
+        row.operator('comp_pro.join_discord', text='', icon_value=utility_icons['Discord_icon.png'].icon_id)
 
     def draw(self, context): # Create 3D View panel
         layout = self.layout
@@ -51,15 +59,19 @@ class main_panel(Panel):
             panel = panel.column()
             # if is_b3_cm():
             #     panel.label(text="Please update to Blender 4.0")
+
             if not compositor.use_groupnode_buffer or not compositor.use_two_pass or compositor.use_opencl:
-                panel.operator('comp_pro.enable_optimizations', text="Enable Optimizations")
+                optimization_menu = panel.box()
+                optimization_menu.label(text="Optimization Menu")
+                optimization_menu.operator('comp_pro.enable_optimizations', text="Enable Optimizations", icon='ERROR')
                 panel.separator()
+
             add_panel = panel.box()
             add_panel.label(text="Add Compositor Pro Node")
             add_panel.prop(props, 'search_string')
             add_panel = add_panel.column(align=True)
             add_panel.prop(props, 'categories', text='')
-            add_panel.template_icon_view(props, 'comp_'+str(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
+            add_panel.template_icon_view(props, 'comp_{}'.format(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
             add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
             # add_button.operator('comp_pro.open_info', text='', icon='QUESTION').choice = props.categories # This is the documentation button. Docs aren't ready.
@@ -78,10 +90,34 @@ class main_panel(Panel):
             mixer_options.prop(props, 'mixer_fac', text='')
             mixer_panel.operator('comp_pro.add_mixer', text="Add")
 
+            panel.separator()
+            credit_box = panel.box()
+            version_row = credit_box.row()
+            version_row.alignment = 'CENTER'
+            version_row.label(text="Compositor Pro {}.{}.{}".format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2]))
+            credits_row = credit_box.row()
+            credits_row.alignment = 'CENTER'
+            credits_row.scale_y = 0.25
+            credits_row.enabled = False
+            credits_row.label(text="Riley Rivera")
+            nihal_row = credit_box.row()
+            nihal_row.alignment = 'CENTER'
+            nihal_row.scale_y = 0.25
+            nihal_row.enabled = False
+            nihal_row.label(text="Nihal Rahman")
+
 class compositor_pro_props(PropertyGroup):
     categories: EnumProperty(
         name='Category',
         items=make_cat_list
+    )
+    n_categories: EnumProperty(
+        name='Category',
+        items=(
+            ('fav_rad', 'Favorites', 'Your favorite nodes'),
+            ('custom_rad', 'Custom Nodes', 'Nodes you made yourself')
+        ),
+        default='fav_rad'
     )
     mixer_blend_type: EnumProperty(
         name='Mixer Blend Type',
@@ -104,9 +140,12 @@ class compositor_pro_props(PropertyGroup):
         name='Search',
         update=update_search_cat
     )
-    
+
     def import_fav_rad(self, context):
         bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='fav_rad')
+
+    def import_custom_rad(self, context):
+        bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='custom_rad')
 
     def quick_add_all(self, context):
         if get_preferences(context).quick_add:
@@ -135,6 +174,9 @@ class compositor_pro_props(PropertyGroup):
     def quick_add_search(self, context):
         if get_preferences(context).quick_add:
             bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='search')
+    def quick_add_custom(self, context):
+        if get_preferences(context).quick_add:
+            bpy.ops.comp_pro.add_node('INVOKE_DEFAULT', choice='custom')
 
     comp_all: EnumProperty(
         items=preview_all(),
@@ -176,6 +218,14 @@ class compositor_pro_props(PropertyGroup):
         items=previews_from_search,
         update=quick_add_search
     )
+    comp_custom: EnumProperty(
+        items=previews_from_custom,
+        update=quick_add_custom
+    )
+    comp_custom_rad: EnumProperty(
+        items=previews_from_custom,
+        update=import_custom_rad
+    )
 
 class compositor_pro_add_node(Operator):
     bl_idname = 'comp_pro.add_node'
@@ -188,18 +238,29 @@ class compositor_pro_add_node(Operator):
     def invoke(self, context, event):
         #find node
         group_name = eval(get_active_node_path(self.choice))
+        if group_name == '':
+            return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
+        if bpy.context.active_object != None and bpy.context.active_object.mode != 'OBJECT':
+            bpy.ops.object.mode_select(mode='OBJECT')
         #append
         if not bpy.data.node_groups.get(group_name):
-            bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+            if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
+                bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
+            else:
+                bpy.ops.wm.append(filename=group_name, directory=join(get_custom_path(group_name), 'NodeTree'))
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
-        new_group.node_tree.use_fake_user = False
+        if bpy.data.node_groups.get(group_name) is not None:
+            new_group.node_tree.use_fake_user = False
+        else:
+            self.report({'ERROR'}, 'This node does not exist in data file.')
         #fix nodes
         recursive_node_fixer(new_group, context)
         #attatch to cursor
+        new_group.width = get_preferences(context).node_width
         new_group.location = context.space_data.cursor_location
         for n in nodes:
             n.select = n == new_group
@@ -292,7 +353,7 @@ class compositor_pro_toggle_favorite(Operator):
             if not has_favorites(context):
                 context.scene.compositor_pro_props.categories = 'mixed'
         else:
-            add_favorite(context, self.choice, node)
+            add_favorite(context, node)
         return {'FINISHED'}
 
 class compositor_pro_open_info(Operator):
@@ -305,14 +366,44 @@ class compositor_pro_open_info(Operator):
 
     def invoke(self, context, event):
         node = eval(get_active_node_path(self.choice))
-        print(node)
+        node_link = node.lower().replace(' ', '_')
+        cat = self.choice
+        if self.choice == 'fav':
+            cat = get_category_from_node(node)
+        webbrowser.open('https://comppro.anticode.me/nodes/{}/{}.html'.format(cat, node_link))
         return {'FINISHED'}
 
-classes = [ compositor_pro_addon_preferences, compositor_pro_add_mixer, compositor_pro_enable_optimizations,
+class compositor_pro_open_docs(Operator):
+    bl_idname = 'comp_pro.open_docs'
+    bl_description = 'Open Compositor Pro documentation'
+    bl_category = 'Node'
+    bl_label = 'Open Documentation'
+
+    def invoke(self, context, event):
+        webbrowser.open(bl_info['doc_url'])
+        return {'FINISHED'}
+
+class compositor_pro_join_discord(Operator):
+    bl_idname = 'comp_pro.join_discord'
+    bl_description = 'Join the Artum Discord for Compositor Pro'
+    bl_category = 'Node'
+    bl_label = 'Join Discord'
+
+    def invoke(self, context, event):
+        webbrowser.open('https://discord.gg/g5tUfzjqaj')
+        return {'FINISHED'}
+
+classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_enable_optimizations,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
-            compositor_pro_open_info, compositor_pro_toggle_favorite ]
+            compositor_pro_open_info, compositor_pro_toggle_favorite,
+            compositor_pro_join_discord, compositor_pro_open_docs,
+            compositor_pro_addon_preferences ]
+
+kmd = [None, None]
 
 def register():
+    if is_broken_cm():
+        raise 'IF YOU SEE THIS ERROR, READ THIS: You have an invalid config.ocio configuration. Please add Filmic Log for Blender 3.x or AgX Log for Blender 4.x to your config.ocio'
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
