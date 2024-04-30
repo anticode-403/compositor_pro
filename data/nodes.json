@@ -1,0 +1,335 @@
+{
+    "mixed": [
+        {
+            "name": "Aberration",
+            "override_thumb": false,
+            "description": "Creates fringes along the X axis of the input image, commonly colored orange, blue, green, or purple"
+        },
+        {
+            "name": "Chroma Blur",
+            "override_thumb": false,
+            "description": "Blurs the 'color' of the image but not the value/luminance of the image, similar to old footage"
+        },
+        {
+            "name": "CRT Grid",
+            "override_thumb": false,
+            "description": "Emulates the grid pattern of CRT monitors. This does not include other effects often seen in CRT footage"
+        },
+        {
+            "name": "Dithered Quantize",
+            "override_thumb": false,
+            "description": "Reduces the bit depth of the image with dithering to remove banding artifacts. Uses an 8x8 matrix"
+        },
+        {
+            "name": "Grain",
+            "override_thumb": false,
+            "description": "Used to emulate film grain. The grain pattern is both mixed and multiplied over the image"
+        },
+        {
+            "name": "Halation",
+            "override_thumb": false,
+            "description": "A colored blur/bloom effect applied to specific colors of the image, used to emulate film"
+        },
+        {
+            "name": "Haze",
+            "override_thumb": false,
+            "description": "A large scale blur applied to the input to imitate a hazy lens or filter"
+        },
+        {
+            "name": "Linear Overlay",
+            "override_thumb": false,
+            "description": "Similar to the overlay blend mode, but works with HDR inputs"
+        },
+        {
+            "name": "Prebloom",
+            "override_thumb": false,
+            "description": "Applies common operations that are sometimes required before effects like Bloom or Glare"
+        },
+        {
+            "name": "Quantize",
+            "override_thumb": false,
+            "description": "Reduces the bit depth of the image, with additional artistic controls over Blender's in-built Quantize"
+        },
+        {
+            "name": "Radial Defocus",
+            "override_thumb": false,
+            "description": "Emulates the effect of a detuned lens or an anamorphic lens"
+        },
+        {
+            "name": "Scene Outline",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "Adds an outline to the scene using depth and normal information using Sobel edge detection"
+        },
+        {
+            "name": "Sensor Fringe",
+            "override_thumb": false,
+            "description": "Adds a colored purple blur effect that is similar to old/faulty CMOS sensor digital cameras"
+        },
+        {
+            "name": "Sharpen",
+            "override_thumb": false,
+            "description": "Adds a sharpening process to the image, done in logarithmic space to avoid artifacts"
+        },
+        {
+            "name": "Vignette",
+            "override_thumb": false,
+            "description": "Adds a vignette effect to the image, designed to emulate real cameras"
+        }
+    ],
+    "unmixed": [
+        {
+            "name": "Anamorphic Bloom",
+            "override_thumb": false,
+            "description": "A bloom effect that is similar to glare seen in anamorphic lenses using 5-step box blur on the Y axis"
+        },
+        {
+            "name": "Anamorphic Ghost",
+            "override_thumb": false,
+            "description": "A ghosting effect along the Y axis that is seen in anamorphic lens flares"
+        },
+        {
+            "name": "Bloom",
+            "override_thumb": false,
+            "description": "A bloom effect seen in lenses of all kinds (even the human eye) using a 10-step gaussian blur"
+        },
+        {
+            "name": "Depth Fog",
+            "override_thumb": false,
+            "description": "A depth-based fog effect"
+        },
+        {
+            "name": "Ghost",
+            "override_thumb": false,
+            "description": "An effect similar to different ghost elements seen in lens flares"
+        },
+        {
+            "name": "Glint",
+            "override_thumb": false,
+            "description": "A multi-directional streak effect seen in digital sensors"
+        },
+        {
+            "name": "Outline Mask",
+            "override_thumb": false,
+            "description": "Generates an outline mask using Sobel edge detection"
+        },
+        {
+            "name": "Radial Ghost",
+            "override_thumb": false,
+            "description": "A ghost effect that is specifically seen along the edges of a lens"
+        },
+        {
+            "name": "Streaks",
+            "override_thumb": false,
+            "description": "A multi-directional streak effect seen in digital sensors"
+        }
+    ],
+    "color": [
+        {
+            "name": "Chroma",
+            "override_thumb": false,
+            "description": "Alters the saturation/chroma of the image using a power function for smoother falloff with correction for saturation"
+        },
+        {
+            "name": "Gamut Compress",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "Compresses the gamut of the image"
+        },
+        {
+            "name": "Interpret ACEScg",
+            "override_thumb": false,
+            "description": "Interprets the incoming input as if it was in ACEScg linear space"
+        },
+        {
+            "name": "Interpret E-gamut",
+            "override_thumb": false,
+            "description": "Interprets the incoming input as if it was in Filmlight E-gamut linear space"
+        },
+        {
+            "name": "Linear Exponent",
+            "override_thumb": false,
+            "description": "An exponent function that works on linear inputs by determining a middle grey value"
+        },
+        {
+            "name": "Primaries",
+            "override_thumb": false,
+            "description": "Alter the primary RGB colors and remaps them to something else"
+        },
+        {
+            "name": "TanH View Transform",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "Applied the TanH math function on all 3 channels, working as a psuedo view transform/compressor"
+        }
+    ],
+    "batches": [
+        {
+            "name": "Anamorphic Flare",
+            "override_thumb": false,
+            "description": "Combines Anamorphic Bloom and Anamorphic Ghost together"
+        },
+        {
+            "name": "CRT Process",
+            "override_thumb": false,
+            "description": "An approximated emulation of CRT footage using nodes like CRT Grid and Chroma Blur"
+        },
+        {
+            "name": "Generic Comp",
+            "override_thumb": false,
+            "description": "A generic, pre-made combination of Bloom, Steaks, Sharpen, and Grain"
+        },
+        {
+            "name": "Lens",
+            "override_thumb": false,
+            "description": "A generic combination of various bloom, ghost, and lens distortion effects"
+        },
+        {
+            "name": "Tail-end",
+            "override_thumb": false,
+            "description": "A combination of Aberration, Halation, Sharpen, and Grain nodes"
+        }
+    ],
+    "utilities": [
+        {
+            "name": "Dispersion",
+            "override_thumb": false,
+            "description": "Adds a dispersion effect to the image, as seen in lenses"
+        },
+        {
+            "name": "Image Add",
+            "override_thumb": false,
+            "description": "Add operation that allows an RGB image to be a factor for the operation"
+        },
+        {
+            "name": "Image Clamp",
+            "override_thumb": false,
+            "description": "Clamps the maximum and minimum values for the input image"
+        },
+        {
+            "name": "Per-pixel Random Noise",
+            "override_thumb": true,
+            "thumb": "utilities/Per-pixel Random Jitter.png",
+            "description": "Per-pixel random noise based on the resolution of the input image"
+        },
+        {
+            "name": "RGB Sweep",
+            "override_thumb": false,
+            "description": "Outputs an RGB sweep texture"
+        },
+        {
+            "name": "RGB to BW",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "Converts RGB images to BW using max(R,G,B) function"
+        },
+        {
+            "name": "RGB to Luminance",
+            "override_thumb": true,
+            "thumb": "utilities/RGB To Luminance.png",
+            "description": "Converts RGB values to luminance"
+        },
+        {
+            "name": "Scene Mixer",
+            "override_thumb": false,
+            "description": "Mix all the different render passes into one combined pass with expanded controls"
+        },
+        {
+            "name": "Screen UV",
+            "override_thumb": false,
+            "description": "Adds the screen UV texture of the current scene. Z channel is constant 1"
+        },
+        {
+            "name": "Smart Denoiser",
+            "override_thumb": false,
+            "description": "Denoises the image and mixes it with the noisy image using a noise threshold. This preserves the quality of non-noisy parts of the image due to the denoiser"
+        },
+        {
+            "name": "Starburst Texture",
+            "override_thumb": false,
+            "description": "Outputs a Starburst texture"
+        },
+        {
+            "name": "Threshold",
+            "override_thumb": false,
+            "description": "Masks the image based on value"
+        },
+        {
+            "name": "Uniform Distortion",
+            "override_thumb": false,
+            "description": "Lens distortion effect that does not stretch with aspect ratio; akin to distortion seen in real lenses"
+        },
+        {
+            "name": "Unsharp Mask",
+            "override_thumb": false,
+            "description": "Usually used for sharpening effects or edge detection"
+        }
+    ],
+    "dev": [
+        {
+            "name": "Absolute",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Bloom 5-step Box Blur",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Bloom 10-step Blur",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Compressed Distance",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Dot Product",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Global Colorspace Conversion",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Global Drivers",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Global Textures",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Grain Mosaic",
+            "override_thumb": true,
+            "thumb": "default.png",
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Mosaic 9-way Mix",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Mosaic Clamp",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        },
+        {
+            "name": "Uniform Radial Distortion",
+            "override_thumb": false,
+            "description": "A node used for developing Compositor Pro nodes"
+        }
+    ]
+}
