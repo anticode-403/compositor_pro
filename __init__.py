@@ -2,7 +2,7 @@ bl_info = {
     "name" : "Compositor Pro",
     "author" : "Riley Rivera, Nihal Rahman",
     "location": "Blender Compositor",
-    "blender" : (3, 6, 0),
+    "blender" : (4, 0, 0),
     "version" : (1, 0, 0),
     "category" : "Compositing",
     "doc_url": "https://comppro.anticode.me/",
