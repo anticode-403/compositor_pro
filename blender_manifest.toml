@@ -6,7 +6,7 @@ id = "compositor_pro"
 version = "1.0.0"
 name = "Compositor Pro"
 tagline = "State of the art Blender Compositor tools and nodes"
-maintainer = "Riley Rivera <rileyanticode@gmail.com>, Nihal Rahman <nihal.rahman.nahin@gmail.com>"
+maintainer = "Riley Rivera, Nihal Rahman"
 # Supported types: "add-on", "theme"
 type = "add-on"
 
