@@ -306,22 +306,6 @@ class compositor_pro_add_mixer(Operator):
         bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_enable_optimizations(Operator):
-    bl_idname = 'comp_pro.enable_optimizations'
-    bl_description = 'Enable Blender compositor optimizations'
-    bl_category = 'Node'
-    bl_label = 'Enable Optimizations'
-
-    def invoke(self, context, event):
-        compositor = context.scene.node_tree
-        compositor.use_groupnode_buffer = True
-        compositor.use_two_pass = True
-        # if bpy.app.version > (4, 0, 0):
-        #     compositor.use_opencl = True
-        # else:
-        compositor.use_opencl = False
-        return {'FINISHED'}
-
 class compositor_pro_enable_nodes(Operator):
     bl_idname = 'comp_pro.enable_nodes'
     bl_description = 'Enable compositor nodes'
