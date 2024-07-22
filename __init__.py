@@ -32,7 +32,7 @@ class main_panel(Panel):
 
     @classmethod
     def poll(cls, context):
-        if (context.space_data.tree_type == 'CompositorNodeTree'):
+        if context.space_data.tree_type == 'CompositorNodeTree':
             return True
         else:
             return False
@@ -127,17 +127,19 @@ class main_panel(Panel):
 class COMPPRO_MT_radial_menu(Menu):
     bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
 
+    @classmethod
+    def poll(cls, context):
+        if context.space_data.tree_type == 'CompositorNodeTree':
+            return True
+        else:
+            return False
+
     def draw(self, context):
         props = context.scene.compositor_pro_props
         prefs = get_preferences(context)
 
         pie = self.layout.menu_pie()
         box = pie.column(align=True)
-        if not context.space_data.tree_type == 'CompositorNodeTree':
-            box = pie.column(align=True)
-            box = pie.column(align=True)
-            box.label('This menu is only available in the Compositor.')
-            return
         if has_favorites(context) or has_custom_nodes(context):
             category = 'fav_rad'
             if has_favorites(context) and has_custom_nodes(context):
