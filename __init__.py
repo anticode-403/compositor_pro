@@ -1,12 +1,4 @@
-bl_info = {
-    "name" : "Compositor Pro",
-    "author" : "Riley Rivera, Nihal Rahman",
-    "location": "Blender Compositor",
-    "blender" : (4, 2, 0),
-    "version" : (1, 1, 0),
-    "category" : "Compositing",
-    "doc_url": "https://comppro.anticode.me/",
-}
+vers = (1, 1, 0)
 
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
     import importlib
@@ -112,7 +104,7 @@ class main_panel(Panel):
             credit_box = panel.box()
             version_row = credit_box.row()
             version_row.alignment = 'CENTER'
-            version_row.label(text="Compositor Pro {}.{}.{}".format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2]))
+            version_row.label(text="Compositor Pro {}.{}.{}".format(vers[0], vers[1], vers[2]))
             credits_row = credit_box.row()
             credits_row.alignment = 'CENTER'
             credits_row.scale_y = 0.25
@@ -125,7 +117,7 @@ class main_panel(Panel):
             nihal_row.label(text="Nihal Rahman")
 
 class COMPPRO_MT_radial_menu(Menu):
-    bl_label = 'Compositor Pro {}.{}.{}'.format(bl_info['version'][0], bl_info['version'][1], bl_info['version'][2])
+    bl_label = 'Compositor Pro {}.{}.{}'.format(vers[0], vers[1], vers[2])
 
     @classmethod
     def poll(cls, context):
@@ -515,7 +507,7 @@ class compositor_pro_open_docs(Operator):
     bl_label = 'Open Documentation'
 
     def invoke(self, context, event):
-        webbrowser.open(bl_info['doc_url'])
+        webbrowser.open('https://comppro.anticode.me')
         return {'FINISHED'}
 
 class compositor_pro_join_discord(Operator):
