@@ -36,7 +36,7 @@ class main_panel(Panel):
         row.operator('comp_pro.open_docs', text='', icon='QUESTION')
         row.operator('comp_pro.join_discord', text='', icon_value=utility_icons['Discord_icon.png'].icon_id)
 
-    def draw(self, context): # Create 3D View panel
+    def draw(self, context):
         layout = self.layout
         props = context.scene.compositor_pro_props
         prefs = get_preferences(context)
