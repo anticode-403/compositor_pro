@@ -236,9 +236,9 @@ class compositor_pro_add_node(Operator):
             return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
-        desired_mode = 'OBJECT' if bpy.app.version < (4, 1, 0) else 'SELECT'
+        desired_mode = 'OBJECT' if bpy.app.version == (4, 1, 0) else 'SELECT'
         if bpy.context.active_object != None and bpy.context.active_object.mode != desired_mode:
-            bpy.ops.object.mode_select(mode=desired_mode)
+            bpy.ops.object.mode_set(mode=desired_mode)
         #append
         if not bpy.data.node_groups.get(group_name):
             bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
