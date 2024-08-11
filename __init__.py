@@ -228,7 +228,7 @@ class compositor_pro_add_node(Operator):
             return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
-        desired_mode = 'OBJECT' if bpy.app.version == (4, 1, 0) else 'SELECT'
+        desired_mode = 'OBJECT' if bpy.app.version != (4, 1, 0) else 'SELECT'
         if bpy.context.active_object != None and bpy.context.active_object.mode != desired_mode:
             bpy.ops.object.mode_set(mode=desired_mode)
         #append
@@ -361,7 +361,7 @@ class compositor_pro_join_discord(Operator):
         webbrowser.open('https://discord.gg/g5tUfzjqaj')
         return {'FINISHED'}
 
-classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_enable_optimizations,
+classes = [ NodeColors, compositor_pro_add_mixer,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props,
             compositor_pro_open_info, compositor_pro_toggle_favorite,
             compositor_pro_join_discord, compositor_pro_open_docs,
