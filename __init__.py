@@ -299,9 +299,9 @@ class compositor_pro_add_node(Operator):
             return {'CANCELLED'}
         node_tree = context.scene.node_tree
         nodes = node_tree.nodes
-        desired_mode = 'OBJECT' if bpy.app.version < (4, 1, 0) else 'SELECT'
+        desired_mode = 'OBJECT' if bpy.app.version != (4, 1, 0) else 'SELECT'
         if bpy.context.active_object != None and bpy.context.active_object.mode != desired_mode:
-            bpy.ops.object.mode_select(mode=desired_mode)
+            bpy.ops.object.mode_set(mode=desired_mode)
         #append
         if not bpy.data.node_groups.get(group_name):
             if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
@@ -438,22 +438,6 @@ class compositor_pro_add_process_colorspace(Operator):
             bpy.ops.node.translate_attach('INVOKE_DEFAULT')
         return {'FINISHED'}
 
-class compositor_pro_enable_optimizations(Operator):
-    bl_idname = 'comp_pro.enable_optimizations'
-    bl_description = 'Enable Blender compositor optimizations'
-    bl_category = 'Node'
-    bl_label = 'Enable Optimizations'
-
-    def invoke(self, context, event):
-        compositor = context.scene.node_tree
-        compositor.use_groupnode_buffer = True
-        compositor.use_two_pass = True
-        # if bpy.app.version > (4, 0, 0):
-        #     compositor.use_opencl = True
-        # else:
-        compositor.use_opencl = False
-        return {'FINISHED'}
-
 class compositor_pro_enable_nodes(Operator):
     bl_idname = 'comp_pro.enable_nodes'
     bl_description = 'Enable compositor nodes'
@@ -562,7 +546,7 @@ class compositor_pro_remove_custom(Operator):
             context.scene.compositor_pro_props.categories = 'all'
         return {'FINISHED'}
 
-classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain, compositor_pro_enable_optimizations,
+classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
             compositor_pro_join_discord, compositor_pro_open_docs, compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu,
