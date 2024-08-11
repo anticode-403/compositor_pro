@@ -241,10 +241,7 @@ class compositor_pro_add_node(Operator):
             bpy.ops.object.mode_select(mode=desired_mode)
         #append
         if not bpy.data.node_groups.get(group_name):
-            if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
-                bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
-            else:
-                bpy.ops.wm.append(filename=group_name, directory=join(get_custom_path(group_name), 'NodeTree'))
+            bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
         #add to scene
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
