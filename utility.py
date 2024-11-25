@@ -176,20 +176,11 @@ def recursive_node_fixer (node_group, context):
             bpy.data.scenes.remove(bpy.data.scenes[driver_scene_name])
         return
     if node_group.node_tree.name == 'Global Colorspace Conversion':
-        if is_b3_cm():
-            for subnode in node_group.node_tree.nodes:
-                if subnode.name == 'Convert Colorspace.001':
-                    subnode.to_color_space = 'Filmic Log'
-                    subnode.from_color_space = 'Linear'
-                elif subnode.name == 'Convert Colorspace.002':
-                    subnode.to_color_space = 'Linear'
-                    subnode.from_color_space = 'Filmic Log'
-        else:
-            for subnode in node_group.node_tree.nodes:
-                if subnode.name == 'Convert Colorspace.001':
-                    subnode.from_color_space = 'Linear Rec.709'
-                elif subnode.name == 'Convert Colorspace.002':
-                    subnode.to_color_space = 'Linear Rec.709'
+        for subnode in node_group.node_tree.nodes:
+            if subnode.name == 'Convert Colorspace.001':
+                subnode.from_color_space = 'Linear Rec.709'
+            elif subnode.name == 'Convert Colorspace.002':
+                subnode.to_color_space = 'Linear Rec.709'
         return
     for node in node_group.node_tree.nodes:
         if node.bl_idname == 'CompositorNodeGroup':
@@ -405,22 +396,6 @@ def cleanup():
     bpy.utils.previews.remove(custom_col)
     bpy.utils.previews.remove(search_col)
     bpy.utils.previews.remove(utility_icons)
-
-def is_b3_cm():
-    return not (has_color_management() or bpy.app.version >= (4, 0, 0))
-
-def is_broken_cm():
-    cm_tuple = tuple(map(color_management_list_to_strings, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
-    if is_b3_cm():
-        return not ('Filmic Log' in cm_tuple)
-    else:
-        return not ('AgX Log' in cm_tuple)
-
-def get_default_process_space():
-    if is_b3_cm():
-        return 'Filmic Log'
-    else:
-        return 'AgX Log'
 
 def get_custom_path(node_name):
     return join(custom_node_folder, '{}.blend'.format(node_name))
