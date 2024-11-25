@@ -549,8 +549,6 @@ classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain,
 kmd = [None, None]
 
 def register():
-    if is_broken_cm():
-        raise 'IF YOU SEE THIS ERROR, READ THIS: You have an invalid config.ocio configuration. Please add Filmic Log for Blender 3.x or AgX Log for Blender 4.x to your config.ocio'
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.compositor_pro_props = PointerProperty(type=compositor_pro_props)
