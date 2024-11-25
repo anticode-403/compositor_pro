@@ -1,9 +1,9 @@
-schema_version = "1.0.0"
+schema_version = "1.1.0"
 
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "compositor_pro"
-version = "1.0.0"
+version = "1.1.0"
 name = "Compositor Pro"
 tagline = "State of the art Blender Compositor tools and nodes"
 maintainer = "Riley Rivera, Nihal Rahman"
