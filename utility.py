@@ -411,3 +411,10 @@ def delete_custom_node(node_name):
         bpy.data.libraries.remove(bpy.data.libraries[os.path.basename(node_path)])
     except:
         print('Could not find custom node. Did something go wrong?')
+
+def get_default_process_space():
+    cm_tuple = tuple(map(color_management_list_to_strings, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
+    if 'AgX Log' in cm_tuple:
+        return 'AgX Log'
+    else:
+        return cm_tuple[0][0]
