@@ -87,6 +87,14 @@ class main_panel(Panel):
             custom_nodes.operator('comp_pro.rebuild_customs')
 
             panel.separator()
+            file_management = panel.box()
+            file_management.label(text="File Management")
+            file_packing = file_management.column(align=True)
+            file_packing.operator('comp_pro.pack_files')
+            file_packing.operator('comp_pro.localize_files')
+            file_packing.enabled = has_global_textures()
+
+            panel.separator()
             credit_box = panel.box()
             version_row = credit_box.row()
             version_row.alignment = 'CENTER'

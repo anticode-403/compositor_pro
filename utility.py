@@ -423,3 +423,6 @@ def get_default_process_space():
 def get_comppro_version():
     manifest = open(manifest_file, 'r')
     return manifest.readlines()[2][11:-2]
+
+def has_global_textures():
+    return bpy.data.node_groups.get('Global Textures') is not None

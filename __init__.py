@@ -22,7 +22,8 @@ from . utility import cleanup
 classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
             compositor_pro_add_process_colorspace, compositor_pro_open_info, compositor_pro_toggle_favorite, compositor_pro_add_custom,
-            compositor_pro_join_discord, compositor_pro_open_docs, compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu,
+            compositor_pro_join_discord, compositor_pro_open_docs, compositor_pro_rebuild_customs, COMPPRO_MT_radial_menu, 
+            compositor_pro_pack_files, compositor_pro_localize_files,
             compositor_pro_addon_preferences ]
 
 kmd = [None, None]
