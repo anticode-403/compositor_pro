@@ -191,6 +191,7 @@ def recursive_node_fixer (node_group, context):
                 continue
             recursive_node_fixer(node, context)
             continue
+    node.show_options = False
     return
 
 def get_preferences(context):
