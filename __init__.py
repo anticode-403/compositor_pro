@@ -12,7 +12,6 @@ if 'bpy' in locals(): # This means that an older version of the addon was previo
         importlib.reload(menus)
 
 import bpy
-import webbrowser
 from bpy.props import PointerProperty
 from . preferences import NodeColors, compositor_pro_addon_preferences
 from . properties import compositor_pro_props
