@@ -260,3 +260,32 @@ class compositor_pro_remove_custom(Operator):
         if len(customs) == 0:
             context.scene.compositor_pro_props.categories = 'all'
         return {'FINISHED'}
+    
+class compositor_pro_localize_files(Operator):
+    bl_idname = 'comp_pro.localize_files'
+    bl_description = 'Localize Compositor Pro images, useful for sharing a project with Compositor Pro data'
+    bl_category = 'Node'
+    bl_label = 'Localize Files'
+
+    def invoke(self, context, event):
+        nodes = bpy.data.node_groups['Global Textures'].nodes
+        for node in nodes:
+            if node.bl_idname == 'CompositorNodeImage':
+                if node.image.packed_file is None:
+                    node.image.pack()
+                node.image.unpack()
+        return {'FINISHED'}
+
+class compositor_pro_pack_files(Operator):
+    bl_idname = 'comp_pro.pack_files'
+    bl_description = 'Pack Compositor Pro images, useful for sharing a project with Compositor Pro data'
+    bl_category = 'Node'
+    bl_label = 'Pack Files'
+
+    def invoke(self, context, event):
+        nodes = bpy.data.node_groups['Global Textures'].nodes
+        for node in nodes:
+            if node.bl_idname == 'CompositorNodeImage':
+                if node.image.packed_file is None:
+                    node.image.pack()
+        return {'FINISHED'}
