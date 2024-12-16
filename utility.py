@@ -12,6 +12,7 @@ blender_file = join(data_dir,'Compositor_Pro.blend')
 custom_node_folder = join(data_dir, 'customs')
 custom_node_folder = join(data_dir, 'customs')
 file_path_node_tree = join(blender_file,'NodeTree')
+manifest_file = join(main_dir, 'blender_manifest.toml')
 preview_dir = join(main_dir,'thumbnails')
 preview_dirs = {
     'mixed_dir': join(preview_dir,'mixed'),
@@ -418,3 +419,7 @@ def get_default_process_space():
         return 'AgX Log'
     else:
         return cm_tuple[0][0]
+
+def get_comppro_version():
+    manifest = open(manifest_file, 'r')
+    return manifest.readlines()[2][11:-2]
