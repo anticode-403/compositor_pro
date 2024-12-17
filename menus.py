@@ -151,3 +151,70 @@ class COMPPRO_MT_radial_menu(Menu):
         add_process_colorspace.prop(props, 'add_process_colorspace_sequencer', text='')
         box = pie.column(align=True)
         box.label(text="Riley Rivera and Nihal Rahman")
+
+class COMPPRO_MT_Mixed_Menu(Menu):
+    bl_idname = 'COMPPRO_MT_Mixed_Menu'
+    bl_label = 'Mixed'
+
+    def draw(self, context):
+        layout = self.layout
+        nodes = get_node_data()['mixed']
+        for node in nodes:
+            add_node_type(layout, node['name'], node['description'])
+
+class COMPPRO_MT_Unmixed_Menu(Menu):
+    bl_idname = 'COMPPRO_MT_Unmixed_Menu'
+    bl_label = 'Unmixed'
+
+    def draw(self, context):
+        layout = self.layout
+        nodes = get_node_data()['unmixed']
+        for node in nodes:
+            add_node_type(layout, node['name'], node['description'])
+
+class COMPPRO_MT_Color_Menu(Menu):
+    bl_idname = 'COMPPRO_MT_Color_Menu'
+    bl_label = 'Color'
+
+    def draw(self, context):
+        layout = self.layout
+        nodes = get_node_data()['color']
+        for node in nodes:
+            add_node_type(layout, node['name'], node['description'])
+
+class COMPPRO_MT_Batches_Menu(Menu):
+    bl_idname = 'COMPPRO_MT_Batches_Menu'
+    bl_label = 'Batches'
+
+    def draw(self, context):
+        layout = self.layout
+        nodes = get_node_data()['batches']
+        for node in nodes:
+            add_node_type(layout, node['name'], node['description'])
+
+class COMPPRO_MT_Utilities_Menu(Menu):
+    bl_idname = 'COMPPRO_MT_Utilities_Menu'
+    bl_label = 'Utilities'
+
+    def draw(self, context):
+        layout = self.layout
+        nodes = get_node_data()['utilities']
+        for node in nodes:
+            add_node_type(layout, node['name'], node['description'])
+
+def add_node_type(layout, node_name, description, *, poll=None, search_weight=0.0):
+    if poll is True or poll is None:
+        props = layout.operator("comp_pro.add_node_direct", text=node_name, search_weight=search_weight)
+        props.node = node_name
+        props.desc = description
+        return props
+
+def add_node_hook(self, context):
+    layout = self.layout
+    layout.separator()
+    layout.label(text="Compositor Pro")
+    layout.menu('COMPPRO_MT_Mixed_Menu')
+    layout.menu('COMPPRO_MT_Unmixed_Menu')
+    layout.menu('COMPPRO_MT_Color_Menu')
+    layout.menu('COMPPRO_MT_Batches_Menu')
+    layout.menu('COMPPRO_MT_Utilities_Menu')
