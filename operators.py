@@ -316,7 +316,10 @@ class compositor_pro_localize_files(Operator):
             if node.bl_idname == 'CompositorNodeImage':
                 if node.image.packed_file is None:
                     node.image.pack()
-                node.image.unpack()
+                try:
+                    node.image.unpack()
+                except:
+                    continue
         return {'FINISHED'}
 
 class compositor_pro_pack_files(Operator):
