@@ -426,4 +426,5 @@ def get_comppro_version():
     return manifest.readlines()[2][11:-2]
 
 def has_global_textures():
-    return bpy.data.node_groups.get('Global Textures') is not None
+    ngs = bpy.data.node_groups
+    return ngs.get('Global Textures') is not None or ngs.get('Grain') is not None

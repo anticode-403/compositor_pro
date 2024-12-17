@@ -311,7 +311,14 @@ class compositor_pro_localize_files(Operator):
     bl_label = 'Localize Files'
 
     def invoke(self, context, event):
-        nodes = bpy.data.node_groups['Global Textures'].nodes
+        nodes = []
+        if bpy.data.node_groups.get('Global Textures') is not None:
+            nodes.append(bpy.data.node_groups['Global Textures'].nodes)
+        if bpy.data.node_groups.get('Grain') is not None:
+            for node in bpy.data.node_groups['Grain'].nodes:
+                if node.name == 'Grain':
+                    nodes.append(node)
+
         for node in nodes:
             if node.bl_idname == 'CompositorNodeImage':
                 if node.image.packed_file is None:
@@ -329,7 +336,13 @@ class compositor_pro_pack_files(Operator):
     bl_label = 'Pack Files'
 
     def invoke(self, context, event):
-        nodes = bpy.data.node_groups['Global Textures'].nodes
+        nodes = []
+        if bpy.data.node_groups.get('Global Textures') is not None:
+            nodes.append(bpy.data.node_groups['Global Textures'].nodes)
+        if bpy.data.node_groups.get('Grain') is not None:
+            for node in bpy.data.node_groups['Grain'].nodes:
+                if node.name == 'Grain':
+                    nodes.append(node)
         for node in nodes:
             if node.bl_idname == 'CompositorNodeImage':
                 if node.image.packed_file is None:
