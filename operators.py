@@ -14,7 +14,6 @@ class compositor_pro_add_node(Operator):
     choice: StringProperty()
 
     def invoke(self, context, event):
-        #find node
         group_name = eval(get_active_node_path(self.choice))
         if group_name == '':
             return {'CANCELLED'}
@@ -23,22 +22,22 @@ class compositor_pro_add_node(Operator):
         desired_mode = 'OBJECT' if bpy.app.version != (4, 1, 0) else 'SELECT'
         if bpy.context.active_object != None and bpy.context.active_object.mode != desired_mode:
             bpy.ops.object.mode_set(mode=desired_mode)
-        #append
+
         if not bpy.data.node_groups.get(group_name):
             if self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
                 bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
             else:
                 bpy.ops.wm.append(filename=group_name, directory=join(get_custom_path(group_name), 'NodeTree'))
-        #add to scene
+                
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
         if bpy.data.node_groups.get(group_name) is not None:
             new_group.node_tree.use_fake_user = False
         else:
             self.report({'ERROR'}, 'This node does not exist in data file.')
-        #fix nodes
+            
         recursive_node_fixer(new_group, context)
-        #attatch to cursor
+        
         new_group.width = get_preferences(context).node_width
         new_group.location = context.space_data.cursor_location
         for n in nodes:
@@ -60,7 +59,6 @@ class compositor_pro_add_node_direct(Operator):
         return properties.desc
 
     def invoke(self, context, event):
-        #find node
         group_name = self.node
         if group_name == '':
             return {'CANCELLED'}
@@ -69,19 +67,19 @@ class compositor_pro_add_node_direct(Operator):
         desired_mode = 'OBJECT' if bpy.app.version != (4, 1, 0) else 'SELECT'
         if bpy.context.active_object != None and bpy.context.active_object.mode != desired_mode:
             bpy.ops.object.mode_set(mode=desired_mode)
-        #append
+            
         if not bpy.data.node_groups.get(group_name):
             bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
-        #add to scene
+            
         new_group = nodes.new(type='CompositorNodeGroup')
         new_group.node_tree = bpy.data.node_groups.get(group_name)
         if bpy.data.node_groups.get(group_name) is not None:
             new_group.node_tree.use_fake_user = False
         else:
             self.report({'ERROR'}, 'This node does not exist in data file.')
-        #fix nodes
+            
         recursive_node_fixer(new_group, context)
-        #attatch to cursor
+        
         new_group.width = get_preferences(context).node_width
         new_group.location = context.space_data.cursor_location
         for n in nodes:
