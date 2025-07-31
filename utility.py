@@ -373,12 +373,12 @@ def make_cat_list(self, context):
     dev_tools = get_preferences(context).dev_tools
     if has_fav or has_custom or dev_tools:
         cat_list.append(None)
-    if has_fav:
-        cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
-    if has_custom:
-        cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
-    if dev_tools:
-        cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
+        if has_fav:
+            cat_list.append(('fav', 'Favorites', 'Your favorite nodes', 'SOLO_ON', len(cat_list)))
+        if has_custom:
+            cat_list.append(('custom', 'Custom Nodes', 'Nodes you made yourself', 'GREASEPENCIL', len(cat_list)))
+        if dev_tools:
+            cat_list.append(('dev', 'Dev Tools', 'Nodes that are used to create many of the basic Comp Pro nodes', 'MODIFIER_ON', len(cat_list)))
     if self.search_string != '':
         cat_list.append(None)
         cat_list.append(('search', 'Search Results', 'The results of your search query', 'VIEWZOOM', len(cat_list)))
