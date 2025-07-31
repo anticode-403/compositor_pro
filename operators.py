@@ -14,7 +14,7 @@ class compositor_pro_add_node(Operator):
     choice: StringProperty()
 
     def invoke(self, context, event):
-        group_name = eval(get_active_node_path(self.choice))
+        group_name = get_active_node_name(self.choice)
         if group_name == '':
             return {'CANCELLED'}
         node_tree = context.space_data.edit_tree
@@ -126,7 +126,7 @@ class compositor_pro_add_mixer(Operator):
                 continue
             selected_nodes.append(n)
         if len(selected_nodes) == 1:
-            node_tree.links.new(eval(selected_nodes[0].outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
+            node_tree.links.new(selected_nodes[0].outputs[0], mixer.inputs[1])
         elif len(selected_nodes) == 2:
             primary_node = selected_nodes[0]
             secondary_node = selected_nodes[1]
@@ -141,8 +141,8 @@ class compositor_pro_add_mixer(Operator):
                 else:
                     primary_node = selected_nodes[0]
                     secondary_node = nodes.active
-            node_tree.links.new(eval(primary_node.outputs[0].path_from_id()), eval(mixer.inputs[1].path_from_id()))
-            node_tree.links.new(eval(secondary_node.outputs[0].path_from_id()), eval(mixer.inputs[2].path_from_id()))
+            node_tree.links.new(primary_node.outputs[0], mixer.inputs[1])
+            node_tree.links.new(secondary_node.outputs[0], mixer.inputs[2])
         mixer.inputs[0].default_value = props.mixer_fac
         mixer.blend_type = props.mixer_blend_type
         mixer.location = context.space_data.cursor_location
@@ -178,15 +178,15 @@ class compositor_pro_add_process_colorspace(Operator):
                     input_socket = link.from_socket
             for link in node_tree.links.values():
                 if link.to_node == nodes.active and link.to_socket.type == 'RGBA':
-                    node_tree.links.new(eval(link.from_socket.path_from_id()), eval(to_active.inputs[0].path_from_id()))
+                    node_tree.links.new(link.from_socket, to_active.inputs[0])
                 elif link.from_node == nodes.active and link.from_socket == nodes.active.outputs[0]:
-                    node_tree.links.new(eval(from_active.outputs[0].path_from_id()), eval(link.to_socket.path_from_id()))
-            node_tree.links.new(eval(from_active.inputs[0].path_from_id()), eval(nodes.active.outputs[0].path_from_id()))
-            node_tree.links.new(eval(input_socket.path_from_id()), eval(to_active.outputs[0].path_from_id()))
+                    node_tree.links.new(from_active.outputs[0], link.to_socket)
+            node_tree.links.new(from_active.inputs[0], nodes.active.outputs[0])
+            node_tree.links.new(input_socket, to_active.outputs[0])
             to_active.location = (nodes.active.location.x - to_active.width - 100, nodes.active.location.y)
             from_active.location = (nodes.active.location.x + nodes.active.width + 100, nodes.active.location.y)
         else:
-            node_tree.links.new(eval(to_active.outputs[0].path_from_id()), eval(from_active.inputs[0].path_from_id()))
+            node_tree.links.new(to_active.outputs[0], from_active.inputs[0])
             to_active.location = (context.space_data.cursor_location.x - 150, context.space_data.cursor_location.y)
             from_active.location = (context.space_data.cursor_location.x + 150, context.space_data.cursor_location.y)
             for n in nodes:
@@ -213,7 +213,7 @@ class compositor_pro_toggle_favorite(Operator):
     choice: StringProperty()
 
     def invoke(self, context, event):
-        node = eval(get_active_node_path(self.choice))
+        node = get_active_node_name(self.choice)
         is_fav = check_favorite(context, node)
         if is_fav:
             rem_favorite(context, node)
@@ -232,7 +232,7 @@ class compositor_pro_open_info(Operator):
     choice: StringProperty()
 
     def invoke(self, context, event):
-        node = eval(get_active_node_path(self.choice))
+        node = get_active_node_name(self.choice)
         node_link = node.lower().replace(' ', '_')
         cat = self.choice
         if self.choice == 'fav':

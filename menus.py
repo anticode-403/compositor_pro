@@ -43,7 +43,7 @@ class main_panel(Panel):
             add_panel.prop(props, 'categories', text='')
             add_panel.template_icon_view(props, 'comp_{}'.format(props.categories), show_labels=True, scale_popup=prefs.thumbnail_size)
             add_button = add_panel.row(align=True)
-            add_button.operator('comp_pro.add_node', text="Add {}".format(eval(get_active_node_path(props.categories)))).choice = props.categories
+            add_button.operator('comp_pro.add_node', text="Add {}".format(get_active_node_name(props.categories))).choice = props.categories
             if props.categories == 'custom':
                 add_button.operator('comp_pro.delete_custom', text='', icon='TRASH')
             else:
@@ -51,8 +51,8 @@ class main_panel(Panel):
                 add_button.operator(
                     'comp_pro.toggle_favorite',
                     text='',
-                    icon='SOLO_OFF' if not check_favorite(context, eval(get_active_node_path(props.categories))) else 'SOLO_ON',
-                    depress=check_favorite(context, eval(get_active_node_path(props.categories)))
+                    icon='SOLO_OFF' if not check_favorite(context, get_active_node_name(props.categories)) else 'SOLO_ON',
+                    depress=check_favorite(context, get_active_node_name(props.categories))
                 ).choice = props.categories
 
             if compositor.nodes.active is not None and compositor.nodes.active.bl_idname == 'CompositorNodeGroup' and 'Grain' in compositor.nodes.active.node_tree.name:

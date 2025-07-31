@@ -68,8 +68,8 @@ def get_category_from_node(node_name):
             if node['name'] == node_name:
                 return cat
 
-def get_active_node_path(choice):
-    return 'bpy.context.scene.compositor_pro_props.comp_{}'.format(choice)
+def get_active_node_name(choice):
+    return bpy.context.scene.compositor_pro_props.path_resolve('comp_{}'.format(choice))
 
 def preview_all():
     data = get_node_data()
@@ -163,7 +163,7 @@ def name_and_color_node(node_group, context):
         cat = 'custom'
     if get_preferences(context).color_nodes:
         node_group.use_custom_color = True
-        node_group.color = eval('get_preferences(context).node_colors.{}'.format(cat))
+        node_group.color = get_preferences(context).node_colors.path_resolve(cat)
 
 def recursive_node_fixer (node_group, context):
     name_and_color_node(node_group, context)
