@@ -15,7 +15,7 @@ def add_node(self, context, group_name, check_customs):
         bpy.ops.object.mode_set(mode=desired_mode)
 
     if not bpy.data.node_groups.get(group_name):
-        if check_customs and self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom'):
+        if not check_customs or (self.choice != 'custom' and not (self.choice == 'fav' and get_fav_dir(context, group_name) == 'custom')):
             bpy.ops.wm.append(filename=group_name, directory=file_path_node_tree)
         else:
             bpy.ops.wm.append(filename=group_name, directory=join(get_custom_path(group_name), 'NodeTree'))
@@ -62,7 +62,7 @@ class compositor_pro_add_node_direct(Operator):
         return properties.desc
 
     def invoke(self, context, event):
-        add_node(self, context, get_active_node_name(self.node), False)
+        add_node(self, context, self.node, False)
         return {'FINISHED'}
 
 class compositor_pro_replace_grain(Operator, ImportHelper):
