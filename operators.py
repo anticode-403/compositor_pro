@@ -3,7 +3,49 @@ from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
 import webbrowser
-from . utility import *
+from . menus import get_active_node_name
+from . preferences import *
+from . previews import file_path_node_tree, process_custom_previews, deep_process_custom_previews
+
+def name_and_color_node(node_group, context):
+    cat, data = get_all_from_node(node_group.node_tree.name)
+    if data:
+        node_group.name = 'CompPro_{}'.format(node_group.node_tree.name)
+    else:
+        node_group.name = 'Custom_{}'.format(node_group.node_tree.name)
+        cat = 'custom'
+    if get_preferences(context).color_nodes:
+        node_group.use_custom_color = True
+        node_group.color = get_preferences(context).node_colors.path_resolve(cat)
+
+def recursive_node_fixer (node_group, context):
+    name_and_color_node(node_group, context)
+    if node_group.node_tree.name == 'Global Drivers':
+        driver_scene_name = 'Driver Scene'
+        for fcurve in node_group.node_tree.animation_data.drivers:
+            for var in fcurve.driver.variables:
+                driver_scene_name = var.targets[0].id.name
+                var.targets[0].id = context.scene
+        if 'Driver' in driver_scene_name and bpy.data.scenes[driver_scene_name] is not None:
+            bpy.data.scenes.remove(bpy.data.scenes[driver_scene_name])
+        return
+    if node_group.node_tree.name == 'Global Colorspace Conversion':
+        for subnode in node_group.node_tree.nodes:
+            if subnode.name == 'Convert Colorspace.001':
+                subnode.from_color_space = 'Linear Rec.709'
+            elif subnode.name == 'Convert Colorspace.002':
+                subnode.to_color_space = 'Linear Rec.709'
+        return
+    for node in node_group.node_tree.nodes:
+        if node.bl_idname == 'CompositorNodeGroup':
+            if node.node_tree.name.endswith('.001'):
+                node.node_tree = bpy.data.node_groups.get(node.node_tree.name[0:-4])
+                name_and_color_node(node, context)
+                continue
+            recursive_node_fixer(node, context)
+            continue
+    node.show_options = False
+    return
 
 def add_node(self, context, group_name, check_customs):
     if group_name == '':

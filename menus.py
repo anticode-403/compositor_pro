@@ -1,5 +1,26 @@
+import bpy
 from bpy.types import Menu, Panel
-from . utility import *
+from os.path import join
+from . preferences import get_preferences, check_favorite, has_custom_nodes
+from . previews import *
+
+utility_icons.load('Discord_icon.png', join(data_dir, 'Discord_icon.png'), 'IMAGE')
+
+def has_global_textures():
+    ngs = bpy.data.node_groups
+    return ngs.get('Global Textures') is not None or ngs.get('Grain') is not None
+
+def get_comppro_version():
+    manifest = open(manifest_file, 'r')
+    return manifest.readlines()[2][11:-2]
+
+def get_active_node_name(choice):
+    return bpy.context.scene.compositor_pro_props.path_resolve('comp_{}'.format(choice))
+
+def is_custom_node(node):
+    if not node:
+        return False
+    return node.bl_idname == 'CompositorNodeGroup' and not node.name.startswith('CompPro_')
 
 class main_panel(Panel):
     bl_label = "Compositor Pro"

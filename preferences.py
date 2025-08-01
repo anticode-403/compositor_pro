@@ -1,8 +1,125 @@
 import bpy
+import rna_keymap_ui
+import json
+import re
 from bpy.types import AddonPreferences, PropertyGroup
 from bpy.props import StringProperty, BoolProperty, FloatProperty, FloatVectorProperty, PointerProperty
-import rna_keymap_ui
-from . utility import get_hotkey_entry_item
+from os import remove
+from os.path import join
+from . previews import data_dir, custom_node_folder, process_favorites_previews
+
+favorite_regexp = r'[^:]+:[^:]+;'
+customs_regexp = r'[^;]+;'
+
+def add_favorite(context, node):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    category = get_category_from_node(node)
+    favs.append('{}:{};'.format(category, node))
+    new_string = ''.join(favs)
+    get_preferences(context).favorites = new_string
+    process_favorites_previews(favs)
+    return
+
+def rem_favorite(context, node):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
+        if fnode == node:
+            favs.remove(favorite)
+    new_string = ''.join(favs)
+    get_preferences(context).favorites = new_string
+    if len(favs) != 0:
+        process_favorites_previews(favs)
+    return
+
+def check_favorite(context, node):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    if len(favs) == 0:
+        return False
+    process_favorites_previews(favs)
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
+        if fnode == node:
+            return True
+    return False
+
+def get_fav_dir(context, node):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    for favorite in favs:
+        cat, fnode = favorite.removesuffix(';').split(':')
+        if fnode == node:
+            return cat
+
+def has_favorites(context):
+    favorite_string = get_preferences(context).favorites
+    favs = re.findall(favorite_regexp, favorite_string)
+    if len(favs) == 0:
+        return False
+    else:
+        return True
+    
+def get_node_data():
+    raw = open(join(data_dir, 'nodes.json'))
+    data = json.load(raw)
+    raw.close()
+    return data
+
+def get_data_from_node(category, node_name):
+    data = get_node_data()
+    for node in data[category]:
+        if node['name'] == node_name:
+            return node
+
+def get_custom_path(node_name):
+    return join(custom_node_folder, '{}.blend'.format(node_name))
+
+def write_custom_node(nodegroup):
+    bpy.data.libraries.write(get_custom_path(nodegroup.node_tree.name), {nodegroup.node_tree}, fake_user=True, path_remap='RELATIVE')
+    return
+
+def delete_custom_node(node_name):
+    node_path = get_custom_path(node_name)
+    try:
+        remove(node_path)
+        bpy.data.libraries.remove(bpy.data.libraries[os.path.basename(node_path)])
+    except:
+        print('Could not find custom node. Did something go wrong?')
+
+def get_hotkey_entry_item(km, kmi_name, kmi_value):
+    for i, km_item in enumerate(km.keymap_items):
+        if km.keymap_items.keys()[i] == kmi_name:
+            if km.keymap_items[i].properties.name == kmi_value:
+                return km_item
+    return None
+
+def get_preferences(context):
+    return context.preferences.addons[__package__].preferences
+
+def get_all_from_node(node_name):
+    data = get_node_data()
+    for cat in data.keys():
+        for node in data[cat]:
+            if node['name'] == node_name:
+                return cat, node
+    return None, None
+
+def get_category_from_node(node_name):
+    data = get_node_data()
+    for cat in data.keys():
+        for node in data[cat]:
+            if node['name'] == node_name:
+                return cat
+
+def has_custom_nodes(context):
+    if get_preferences(context).customs != '':
+        if len(custom_col.my_previews) == 0:
+            process_custom_previews(context)
+        return True
+    return False
 
 class NodeColors(PropertyGroup):
     mixed: FloatVectorProperty(

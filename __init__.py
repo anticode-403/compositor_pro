@@ -1,7 +1,7 @@
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
     import importlib
-    if 'utility' in locals():
-        importlib.reload(utility)
+    if 'previews' in locals():
+        importlib.reload(previews)
     if 'preferences' in locals():
         importlib.reload(preferences)
     if 'properties' in locals():
@@ -17,7 +17,7 @@ from . preferences import NodeColors, compositor_pro_addon_preferences
 from . properties import compositor_pro_props
 from . menus import *
 from . operators import *
-from . utility import cleanup
+from . previews import *
 
 classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,
@@ -28,6 +28,14 @@ classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain,
             compositor_pro_addon_preferences ]
 
 kmd = [None, None]
+
+def cleanup():
+    for preview_col in preview_collections.values():
+        bpy.utils.previews.remove(preview_col)
+    bpy.utils.previews.remove(all_col)
+    bpy.utils.previews.remove(custom_col)
+    bpy.utils.previews.remove(search_col)
+    bpy.utils.previews.remove(utility_icons)
 
 def register():
     for cls in classes:
