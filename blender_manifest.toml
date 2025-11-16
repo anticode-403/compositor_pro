@@ -1,0 +1,25 @@
+schema_version = "1.1.0"
+id = "compositor_pro"
+version = "1.1.0"
+name = "Compositor Pro"
+tagline = "State of the art Blender Compositor tools and nodes"
+maintainer = "Riley Rivera, Nihal Rahman"
+type = "add-on"
+website = "https://comppro.anticode.me/"
+tags = ["Compositing"]
+
+blender_version_min = "4.2.0"
+# blender_version_max = "5.1.0"
+license = [
+  "SPDX:GPL-2.0-or-later",
+]
+
+copyright = [
+  "2023-2024 Riley Rivera",
+  "2023-2024 Nihal Rahman"
+]
+
+[permissions]
+# network = "Need to sync motion-capture data to server"
+files = "Manages Compositor Pro's internal data"
+# clipboard = "Copy and paste bone transforms"
