@@ -18,7 +18,7 @@ def add_favorite(context, node):
     favs.append('{}:{};'.format(category, node))
     new_string = ''.join(favs)
     get_preferences(context).favorites = new_string
-    from previews import process_favorites_previews
+    from . previews import process_favorites_previews
     process_favorites_previews(favs)
     return
 
@@ -32,7 +32,7 @@ def rem_favorite(context, node):
     new_string = ''.join(favs)
     get_preferences(context).favorites = new_string
     if len(favs) != 0:
-        from previews import process_favorites_previews
+        from . previews import process_favorites_previews
         process_favorites_previews(favs)
     return
 
@@ -41,7 +41,7 @@ def check_favorite(context, node):
     favs = re.findall(favorite_regexp, favorite_string)
     if len(favs) == 0:
         return False
-    from previews import process_favorites_previews
+    from . previews import process_favorites_previews
     process_favorites_previews(favs)
     for favorite in favs:
         cat, fnode = favorite.removesuffix(';').split(':')
@@ -118,7 +118,7 @@ def get_category_from_node(node_name):
                 return cat
 
 def has_custom_nodes(context):
-    from previews import process_custom_previews, custom_col
+    from . previews import process_custom_previews, custom_col
     if get_preferences(context).customs != '':
         if len(custom_col.my_previews) == 0:
             process_custom_previews(context)

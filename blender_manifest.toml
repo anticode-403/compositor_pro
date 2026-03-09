@@ -9,7 +9,7 @@ website = "https://comppro.anticode.me/"
 tags = ["Compositing"]
 
 blender_version_min = "4.2.0"
-# blender_version_max = "5.1.0"
+blender_version_max = "4.5.7"
 license = [
   "SPDX:GPL-2.0-or-later",
 ]
