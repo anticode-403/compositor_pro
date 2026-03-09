@@ -1,23 +1,26 @@
 if 'bpy' in locals(): # This means that an older version of the addon was previously installed
     import importlib
-    if 'previews' in locals():
-        importlib.reload(previews)
+    if 'directories' in locals():
+        importlib.reload(directories)
     if 'preferences' in locals():
         importlib.reload(preferences)
+    if 'comp_previews' in locals():
+        importlib.reload(previews)
     if 'properties' in locals():
         importlib.reload(properties)
-    if 'operators' in locals():
-        importlib.reload(operators)
     if 'menus' in locals():
         importlib.reload(menus)
+    if 'operators' in locals():
+        importlib.reload(operators)
 
 import bpy
 from bpy.props import PointerProperty
+from . directories import *
 from . preferences import NodeColors, compositor_pro_addon_preferences
+from . previews import *
 from . properties import compositor_pro_props
 from . menus import *
 from . operators import *
-from . previews import *
 
 classes = [ NodeColors, compositor_pro_add_mixer, compositor_pro_replace_grain,
             compositor_pro_enable_nodes, compositor_pro_add_node, main_panel, compositor_pro_props, compositor_pro_remove_custom,

@@ -5,7 +5,8 @@ from bpy.props import StringProperty
 import webbrowser
 from . menus import get_active_node_name
 from . preferences import *
-from . previews import file_path_node_tree, process_custom_previews, deep_process_custom_previews
+from . previews import process_custom_previews, deep_process_custom_previews
+from . directories import file_path_node_tree
 
 def name_and_color_node(node_group, context):
     cat, data = get_all_from_node(node_group.node_tree.name)

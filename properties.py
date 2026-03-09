@@ -1,6 +1,6 @@
 import bpy
 import os
-from bpy.types import PropertyGroup
+from bpy.types import PropertyGroup, ColorManagedInputColorspaceSettings
 from bpy.props import StringProperty, FloatProperty, EnumProperty
 from os.path import join, dirname, normpath
 from . preferences import get_preferences, has_custom_nodes, has_favorites
@@ -29,7 +29,7 @@ def color_management_list_to_strings(enum_item):
     return enum_item.name
 
 def get_default_process_space():
-    cm_tuple = tuple(map(color_management_list_to_strings, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
+    cm_tuple = tuple(map(color_management_list_to_strings, ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items))
     if 'AgX Log' in cm_tuple:
         return 'AgX Log'
     else:
@@ -93,7 +93,7 @@ class compositor_pro_props(PropertyGroup):
     )
     add_process_colorspace_sequencer: EnumProperty(
         name='Active Colorspace Sequencer',
-        items=tuple(map(color_management_list_to_tuples, bpy.types.ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
+        items=tuple(map(color_management_list_to_tuples, ColorManagedInputColorspaceSettings.bl_rna.properties['name'].enum_items)),
         default=get_default_process_space()
     )
     search_string: StringProperty(

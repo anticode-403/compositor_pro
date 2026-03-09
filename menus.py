@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Menu, Panel
 from os.path import join
 from . preferences import get_preferences, check_favorite, has_custom_nodes
+from . directories import data_dir, manifest_file
 from . previews import *
 
 utility_icons.load('Discord_icon.png', join(data_dir, 'Discord_icon.png'), 'IMAGE')
