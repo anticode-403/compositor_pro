@@ -5,7 +5,8 @@ from bpy.props import StringProperty
 import webbrowser
 from . menus import get_active_node_name
 from . preferences import *
-from . previews import file_path_node_tree, process_custom_previews, deep_process_custom_previews
+from . previews import process_custom_previews, deep_process_custom_previews
+from . directories import file_path_node_tree
 
 def name_and_color_node(node_group, context):
     cat, data = get_all_from_node(node_group.node_tree.name)
@@ -118,7 +119,7 @@ class compositor_pro_replace_grain(Operator, ImportHelper):
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
-        grain_node = context.scene.node_tree.nodes.active
+        grain_node = context.scene.compositing_node_group.nodes.active
         grain_texture_node = None
         for node in grain_node.node_tree.nodes:
             if node.name == 'Grain':
@@ -135,7 +136,7 @@ class compositor_pro_add_mixer(Operator):
 
     def invoke(self, context, event):
         props = context.scene.compositor_pro_props
-        node_tree = context.scene.node_tree
+        node_tree = context.scene.compositing_node_group
         nodes = node_tree.nodes
         mixer = nodes.new(type='CompositorNodeMixRGB')
         selected_nodes = []
@@ -179,7 +180,7 @@ class compositor_pro_add_process_colorspace(Operator):
 
     def invoke(self, context, event):
         props = context.scene.compositor_pro_props
-        node_tree = context.scene.node_tree
+        node_tree = context.scene.compositing_node_group
         nodes = node_tree.nodes
         to_active = nodes.new(type='CompositorNodeConvertColorSpace') # from Linear Rec.709 to add_process_colorspace_sequencer
         from_active = nodes.new(type='CompositorNodeConvertColorSpace') # from add_process_colorspace_sequencer to Linear Rec.709
@@ -287,7 +288,7 @@ class compositor_pro_add_custom(Operator):
     bl_label = 'Add Custom Node'
 
     def invoke(self, context, event):
-        nodegroup = context.scene.node_tree.nodes.active
+        nodegroup = context.scene.compositing_node_group.nodes.active
         customs = re.findall(customs_regexp, get_preferences(context).customs)
         customs.append('{};'.format(nodegroup.node_tree.name))
         get_preferences(context).customs = ''.join(customs)

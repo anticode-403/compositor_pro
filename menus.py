@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Menu, Panel
 from os.path import join
 from . preferences import get_preferences, check_favorite, has_custom_nodes
+from . directories import data_dir, manifest_file
 from . previews import *
 
 utility_icons.load('Discord_icon.png', join(data_dir, 'Discord_icon.png'), 'IMAGE')
@@ -54,7 +55,7 @@ class main_panel(Panel):
         if not context.scene.use_nodes:
             panel.operator('comp_pro.enable_nodes', text="Enable Nodes")
         else:
-            compositor = context.scene.node_tree
+            compositor = context.scene.compositing_node_group
             panel = panel.column()
             
             add_panel = panel.box()
