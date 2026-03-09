@@ -55,7 +55,7 @@ class main_panel(Panel):
         if not context.scene.use_nodes:
             panel.operator('comp_pro.enable_nodes', text="Enable Nodes")
         else:
-            compositor = context.scene.node_tree
+            compositor = context.scene.compositing_node_group
             panel = panel.column()
             
             add_panel = panel.box()
